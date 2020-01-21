@@ -9,6 +9,5 @@ A short lazy script for the Umaru-chan in you.
 
 Potential future updates:
 
--> An option to delete anime files you don't need
-
+-> An option to delete anime files you don't need <br>
 -> Automated downloading
