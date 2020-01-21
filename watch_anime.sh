@@ -4,6 +4,7 @@
 
 path="/media/bitlockermount/Users/sarth/Documents/Anime"
 
+#Checks if the partition is mounted and mounts it if it isn't
 cd "$path">/dev/null 2>&1
 if [ $? -eq 0 ] ; then
 	printf "***Bitlocker Drive already mounted. Proceeding ahead...***\n"
@@ -15,6 +16,7 @@ printf "\n"
 
 file_count=$(ls $path -1 | wc -l)
 
+#Hashmap to refer to files in the directory by numbers
 declare -A file_list
 num=1
 for file in $path/*;  do
@@ -26,6 +28,7 @@ done
 printf "\n"
 read -p "Select the anime of your choice [1-$file_count]: " choice
 
+#Using VLC to run the chosen file
 echo "***Playing***"
 vlc "$path/${file_list[$choice]}">/dev/null 2>&1
 
