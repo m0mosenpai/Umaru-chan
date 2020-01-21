@@ -1,7 +1,7 @@
 #!/bin/bash
 #A simple bash script to automate the process of choosing and playing any downloaded anime of choice.
-#Change the path after 'bitlockermount', to wherever your anime library is located on the Windows Partition. Ensure the name of your anime folder DOES NOT contain spaces.
 
+#Change the path after 'bitlockermount', to wherever your anime library is located on the Windows Partition. Ensure the name of your anime folder DOES NOT contain spaces.
 path="/media/bitlockermount/Users/sarth/Documents/Anime"
 
 #Checks if the partition is mounted and mounts it if it isn't
@@ -10,7 +10,8 @@ if [ $? -eq 0 ] ; then
 	printf "***Bitlocker Drive already mounted. Proceeding ahead...***\n"
 else
 	printf "***Bitlocker Drive not mounted. Mounting drive...***\n"
-	sudo $HOME/Documents/Scripts/mount.sh	
+	#Change this path to where the mount_part.sh script is located on the system
+	sudo $HOME/Documents/Scripts/mount_part.sh	
 fi
 printf "\n"
 
