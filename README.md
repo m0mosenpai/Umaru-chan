@@ -8,6 +8,5 @@ A short lazy script for the Umaru-chan in you.
 ![Umaru-chan](https://media.giphy.com/media/GYtblmdLnemlO/giphy.gif)
 
 # Dependencies
-dislocker
-
+dislocker <br>
 vlc
