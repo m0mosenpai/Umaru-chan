@@ -9,4 +9,6 @@ A short lazy script for the Umaru-chan in you.
 
 # Dependencies
 dislocker <br>
-vlc
+vlc <br>
+scrapy <br>
+transmission 
