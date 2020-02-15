@@ -26,11 +26,14 @@ file_count=$(ls $path -1 | wc -l)
 #Mounts Bitlocker Encrypted Drive (if not already mounted)
 #Comment out this function if you dont have a Bitlocker encrypted partition or have your library in linux itself.
 mountDrive(){
+	printf "Checking for Bitlocker Drive... \n"
+	sleep 1s
 	cd "$path">/dev/null 2>&1
 	if [ $? -eq 0 ] ; then
-		printf "***Bitlocker Drive already mounted. Proceeding ahead...***\n"
+		printf "Bitlocker Drive already mounted. Proceeding ahead...\n"
+		sleep 1s
 	else
-		printf "***Bitlocker Drive not mounted. Mounting drive...***\n"
+		printf "Bitlocker Drive not mounted. Mounting drive...\n"
 		sudo $HOME/Documents/Scripts/mount_part.sh	
 	fi
 	printf "\n"
@@ -48,7 +51,9 @@ createFileList() {
 
 #Displays prompt to remove file after watching it
 removePrompt() {
-	read -p "Do you want to remove this file from your library? (y/n)" choice2
+	printf "${file_list[$1]} \n"
+	printf "\n"
+	read -p "Do you want to remove this file from your library? (y/n) " choice2
 
 	if [ $choice2 = 'y' ] ; then
 		printf "File Removed.\n"
@@ -65,6 +70,9 @@ createFileList
 printf "\n"
 read -p "Select the anime of your choice [1-$file_count]: " choice1
 
-printf "***Playing*** \n"
+clear
+printf "Opening in VLC... \n"
 vlc "$path/${file_list[$choice1]}">/dev/null 2>&1
+printf "Done. \n"
+printf "\n"
 removePrompt "$choice1"
