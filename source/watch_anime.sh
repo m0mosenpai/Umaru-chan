@@ -7,14 +7,14 @@ clear
 
 printf "\n"
 printf "\n"
-printf "Welcome to \n"
-printf "██╗   ██╗███╗   ███╗ █████╗ ██████╗ ██╗   ██╗       ██████╗██╗  ██╗ █████╗ ███╗   ██╗\n"
-printf "██║   ██║████╗ ████║██╔══██╗██╔══██╗██║   ██║      ██╔════╝██║  ██║██╔══██╗████╗  ██║\n"
-printf "██║   ██║██╔████╔██║███████║██████╔╝██║   ██║█████╗██║     ███████║███████║██╔██╗ ██║\n"
-printf "██║   ██║██║╚██╔╝██║██╔══██║██╔══██╗██║   ██║╚════╝██║     ██╔══██║██╔══██║██║╚██╗██║\n"
-printf "╚██████╔╝██║ ╚═╝ ██║██║  ██║██║  ██║╚██████╔╝      ╚██████╗██║  ██║██║  ██║██║ ╚████║\n"
-printf " ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝        ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝ v$version\n"
-printf "A simple program to automate anime watching on Linux."
+printf "\e[95;1mWelcome to \e[0m \n"
+printf "\e[93;1m██╗   ██╗███╗   ███╗ █████╗ ██████╗ ██╗   ██╗       ██████╗██╗  ██╗ █████╗ ███╗   ██╗\e[0m\n"
+printf "\e[93;1m██║   ██║████╗ ████║██╔══██╗██╔══██╗██║   ██║      ██╔════╝██║  ██║██╔══██╗████╗  ██║\e[0m\n"
+printf "\e[93;1m██║   ██║██╔████╔██║███████║██████╔╝██║   ██║█████╗██║     ███████║███████║██╔██╗ ██║\e[0m\n"
+printf "\e[93;1m██║   ██║██║╚██╔╝██║██╔══██║██╔══██╗██║   ██║╚════╝██║     ██╔══██║██╔══██║██║╚██╗██║\e[0m\n"
+printf "\e[93;1m╚██████╔╝██║ ╚═╝ ██║██║  ██║██║  ██║╚██████╔╝      ╚██████╗██║  ██║██║  ██║██║ ╚████║\e[0m\n"
+printf "\e[93;1m ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝        ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝\e[0m \e[95;1m v$version\e[0m\n"
+printf "\e[95;1mA simple program to automate anime watching on Linux.\e[0m"
 printf "\n"
 printf "\n"
 
@@ -43,9 +43,22 @@ mountDrive(){
 createFileList() {
 	num=1
 	for file in $path/*;  do
-		printf "$num : ${file##*/}\n"
-		file_list[$num]=${file##*/}
+		#Parameter Exansion in BASH
+		name=${file##*/}
+		cd "$path/$name">/dev/null 2>&1
+		#Condition to check whether it's a file or a directory
+		#Using ANSI codes to print colored outputs
+		if [ $? -eq 0 ] ; then
+			#Print Directory names in Cyan
+			printf "\e[96;1m $num : $name \e[0m\n"
+		else
+			#Print File names in Red 
+			printf "\e[91;1m $num : $name \e[0m\n"
+		fi
+
+		file_list[$num]=$name
 		num=$((num + 1))
+
 	done
 }
 
@@ -68,7 +81,7 @@ mountDrive
 createFileList
 
 printf "\n"
-read -p "Select the anime of your choice [1-$file_count]: " choice1
+read -p "Select media file [1-$file_count]: " choice1
 
 clear
 printf "Opening in VLC... \n"
