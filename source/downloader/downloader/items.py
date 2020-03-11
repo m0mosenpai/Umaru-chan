@@ -10,5 +10,7 @@ import scrapy
 
 class DownloaderItem(scrapy.Item):
     # define the fields for your item here like:
-    # name = scrapy.Field()
+    time = scrapy.Field()
+    schedule = scrapy.Field()
+
     pass
