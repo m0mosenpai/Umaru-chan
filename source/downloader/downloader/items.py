@@ -7,10 +7,26 @@
 
 import scrapy
 
-
-class DownloaderItem(scrapy.Item):
+#Schedule and Time
+class ScheduleTimeItem(scrapy.Item):
     # define the fields for your item here like:
-    time = scrapy.Field()
-    schedule = scrapy.Field()
+    timetable = scrapy.Field()
+    current_season = scrapy.Field()
 
     pass
+
+#Current Time
+class CurrentTimeItem(scrapy.Item):
+    # define the fields for your item here like:
+    current_time = scrapy.Field()
+
+    pass
+
+#Current Season list
+class CurrentSeasonItem(scrapy.Item):
+    # define the fields for your item here like:
+    current_season = scrapy.Field()
+
+    pass
+
+

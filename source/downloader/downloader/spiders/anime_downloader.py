@@ -1,6 +1,6 @@
 #A simple script that automatically downloads anime from HorribleSubs based on user's schedule and selected anime of choice.
 import scrapy
-from ..items import DownloaderItem
+from ..items import ScheduleTimeItem, CurrentTimeItem, CurrentSeasonItem
 
 #Globals
 running = True
@@ -18,24 +18,39 @@ class animeDownloader(scrapy.Spider):
 		"https://horriblesubs.info/"
 	]
 
-	items = DownloaderItem()
+	#Function to parse time inside iframe	
+	def parse_time(self, response):
+		items = CurrentTimeItem()
+		yield {
+				'current_time': response.xpath('//tr/td/a/span/text()').extract_first()
+			}
 
+	#Functino to parse current season list
+	def parse_season(self, response):
+		items = CurrentSeasonItem()
+		yield {
+				'current_season': response.xpath('//div[@class="ind-show"]/a/text()').extract()
+		}
+
+
+	#Function to parse schedule and time of shows	
 	def parse(self, response):
-		
+		items = ScheduleTimeItem()
+
 		#Get current time
-		time_url = response.css('iframe::attr(src)').extract()
-		yield scrapy.Request(time_url[0], callback = self.parse_iframe)
+		time_url = response.xpath('//iframe/@src').extract_first()
+		yield scrapy.Request(time_url, callback = self.parse_time)
 
 		#Get Schedule for the day
-		self.items['schedule'] = []
-		showname = response.xpath('//h2/table[@class="schedule-table"]//td[@class="schedule-widget-show"/a/text()').extract()
-		print(showname)
+		schedule = response.xpath('//table[@class="schedule-table"]/tr/td/a/text()').extract()
+		release_time = response.xpath('//table[@class="schedule-table"]/tr/td/text()').extract() 
+		yield { 
+			'timetable': list(zip(schedule, release_time))
+			}
 
-	#Function to parse time inside iframe	
-	def parse_iframe(self, response):
-		time = response.xpath('//tr/td/a/span/text()').extract_first()
-		self.items['time'] = time
-
+		#Get Current Season
+		season = response.xpath('//ul/li/a[@title="Shows airing this season"]/@href').extract_first()
+		yield scrapy.Request(season, callback = self.parse_season)
 
 # #Shows info like time to next episode, downloaded episodes etc.
 # def showStatus():
