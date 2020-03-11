@@ -29,4 +29,11 @@ class CurrentSeasonItem(scrapy.Item):
 
     pass
 
+#All Shows list
+class AllShowsItem(scrapy.Item):
+    # define the fields for your item here like:
+    all_shows = scrapy.Field()
+
+    pass
+
 
