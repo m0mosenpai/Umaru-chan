@@ -1,5 +1,5 @@
 # Umaru-chan
-A program to automate anime watching and downloading for the Umaru-chan in you!
+A program to automate anime watching and downloading.
 
 ![Umaru-chan](https://media.giphy.com/media/GYtblmdLnemlO/giphy.gif)
 
