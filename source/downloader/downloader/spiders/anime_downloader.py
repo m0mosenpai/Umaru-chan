@@ -1,28 +1,12 @@
 #A simple script that automatically downloads anime from HorribleSubs based on user's schedule and selected anime of choice.
 import scrapy
-from ..items import ScheduleTimeItem, CurrentTimeItem, CurrentSeasonItem, AllShowsItem
-
-#Globals
-running = True
-watchlist = []
-malID = "https://myanimelist.net/animelist/Momo_Senpai"
-lib_path = "/media/bitlockermount/Users/sarth/Documents/Anime"
-
-# print("1. Set up/Update Watchlist")
-# print("2. Show Status")
-# print("3. Exit")
+from ..items import ScheduleTimeItem, CurrentSeasonItem, AllShowsItem
 
 class animeDownloader(scrapy.Spider):
 	name = 'anime'
 	start_urls = [
 		"https://horriblesubs.info/"
 	]
-
-	#Function to parse time inside iframe	
-	def parse_time(self, response):
-		items = CurrentTimeItem()
-		items['current_time'] = response.xpath('//tr/td/a/span/text()').extract_first()
-		yield items
 
 	#Function to parse current season list
 	def parse_season(self, response):
@@ -46,17 +30,12 @@ class animeDownloader(scrapy.Spider):
 		# 		items['all_shows'][show[0].upper()].append(show)	
 		yield items
 
+		#TO-DO
 		#Get a particular show
-
-
 
 	#Function to parse schedule and time of shows	
 	def parse(self, response):
 		items = ScheduleTimeItem()
-
-		#Get current time
-		time_url = response.xpath('//iframe/@src').extract_first()
-		yield scrapy.Request(time_url, callback = self.parse_time)
 
 		#Get Schedule for the day
 		schedule = response.xpath('//table[@class="schedule-table"]/tr/td/a/text()').extract()

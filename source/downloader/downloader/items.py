@@ -15,13 +15,6 @@ class ScheduleTimeItem(scrapy.Item):
 
     pass
 
-#Current Time
-class CurrentTimeItem(scrapy.Item):
-    # define the fields for your item here like:
-    current_time = scrapy.Field()
-
-    pass
-
 #Current Season list
 class CurrentSeasonItem(scrapy.Item):
     # define the fields for your item here like:
