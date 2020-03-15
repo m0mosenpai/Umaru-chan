@@ -8,3 +8,6 @@ dislocker <br>
 vlc <br>
 scrapy <br>
 transmission 
+
+# Other Contributors
+prog-butter
