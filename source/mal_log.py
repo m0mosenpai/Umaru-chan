@@ -26,7 +26,15 @@ class animelist():
 		btn.click()
 
 	def gotoanime(self, animename):
-		self.driver.get('https://myanimelist.net/animelist/{}'.format(secrets._id))
+		try:
+			self.driver.get('https://myanimelist.net/animelist/{}'.format(secrets._id))
+		except Exception:
+			pass
+		sleep(3)
+		self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
+		anime_elem = self.driver.find_element_by_xpath("//tr[contains(text(), animename)]")
+		anime_elem.click()
+		print(anime_elem)
 
 	def updateanime(self):
 		self.driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
@@ -36,4 +44,4 @@ class animelist():
 
 bot = animelist()
 bot.login()
-bot.gotoanime(animename='37403/Ahiru_no_Sora')
+bot.gotoanime(animename='Ahiru no Sora')
