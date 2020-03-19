@@ -1,6 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-import secrets
+import data.secrets
 from time import sleep
 
 class animelist():
@@ -33,7 +33,10 @@ class animelist():
 		btn = self.driver.find_element_by_class_name("""//*[@id="list-container"]/div[3]/div/table/tbody[1]/tr[0]/td[6]/div/a/i""")
 		btn.click()
 
-
-bot = animelist()
-bot.login()
-bot.gotoanime(animename='37403/Ahiru_no_Sora')
+#Check if secrete.py contains login credentials
+if secrets._id != '' and secrets._pass !='':
+	bot = animelist()
+	bot.login()
+	bot.gotoanime(animename='37403/Ahiru_no_Sora')
+else:
+	print("MAL Login ID not set. Run client with '--mal-id <username> <password>' to set one up!")
