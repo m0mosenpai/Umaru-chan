@@ -12,7 +12,6 @@ from downloader.downloader.spiders import anime_downloader
 BUFFSIZE = 2048
 ACTIVE = True
 LAST_REFRESH = ""
-PATH = ""
 
 #A context manager class which changes the working directory
 class cd:
@@ -70,7 +69,6 @@ def sendResponse():
 	global BUFFSIZE	
 	global ACTIVE
 	global LAST_REFRESH	
-	global PATH
 
 	#Opens TCP ipv4 socket on specified port and host
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -122,17 +120,19 @@ def sendResponse():
 		#If path header is found, set path	
 		elif client_msg[:4] == "path":
 			PATH = client_msg[4:]
+			with open("data/path.txt", "w") as path:
+				path.write(PATH)
 			clientsocket.send(bytes("Default download directory set! \n", 'utf-8'))
 
 		#If a refresh ping is received, database is refreshed by calling scrapy	
 		elif client_msg == "refresh":
 			#Change directory temporarily
 			with cd("downloader/downloader"):
-				devnull = open(os.devnull, 'w')
-				subprocess.call('scrapy crawl anime -o ../../data/data.json', stdout=devnull)
+				#Runs scrapy; remove the --nolog option to see logs in server.py output
+				subprocess.run(["scrapy", "crawl", "anime", "-o", "../../data/data.json", "--nolog"])
 
 			LAST_REFRESH = local_datetime.ctime()	
-			clientsocket.send(bytes("Database refreshed successfully!.\n", 'utf-8'))
+			clientsocket.send(bytes("Database refreshed successfully!\n", 'utf-8'))
 
 		#If no incoming message, close socket and break	
 		else:
@@ -141,17 +141,17 @@ def sendResponse():
 			break
 
 #Main process - runs forever once started	
-while True:
-	schedule = getSchedule()
-	watchlist = getWatchlist()
-	for show in watchlist:
-		#TO-DO
-		#Need a flexible search/compare criteria for show names
-		if show in schedule.keys():
-			#Check if the show is out yet
-			if timeCompare(schedule[show]):
-				#Start scraping every 10 minutes
-			else:
-				continue
-				#Do nothing and wait
-	sendResponse()				
+# while True:
+# 	schedule = getSchedule()
+# 	watchlist = getWatchlist()
+# 	for show in watchlist:
+# 		#TO-DO
+# 		#Need a flexible search/compare criteria for show names
+# 		if show in schedule.keys():
+# 			#Check if the show is out yet
+# 			if timeCompare(schedule[show]):
+# 				#Start scraping every 10 minutes
+# 			else:
+# 				continue
+# 				#Do nothing and wait
+sendResponse()				

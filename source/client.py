@@ -22,9 +22,9 @@ def watchlist(s):
 		watchlist_ping = "show-watchlist".encode('utf-8')
 		s.send(watchlist_ping)
 
-		watchlist = pickle.loads(BUFFSIZE)
-		print("Your Watchlist: ")
-		print(watchlist)
+		msg = s.recv(BUFFSIZE) 
+		watchlist = pickle.loads(msg)
+		print("Your Watchlist:\n {}".format(watchlist))
 
 def refresh(s):
 	while True:
@@ -38,7 +38,7 @@ def refresh(s):
 def setPATH(s, directory):
 	while True:
 		#Send path to server by prepending path header
-		path = 'path:' + directory
+		path = 'path' + directory
 		s.send(path.encode('utf-8'))
 
 		msg = s.recv(BUFFSIZE).decode('utf-8')
