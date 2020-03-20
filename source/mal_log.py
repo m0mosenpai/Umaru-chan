@@ -15,10 +15,10 @@ class animelist():
 		sleep(5)
 
 		email = self.driver.find_element_by_xpath("""//*[@id="loginUserName"]""")
-		email.send_keys(secrets._id)
+		email.send_keys(data.secrets._id)
 
 		password = self.driver.find_element_by_xpath("""//*[@id="login-password"]""")
-		password.send_keys(secrets._pass)
+		password.send_keys(data.secrets._pass)
 
 		sleep(2)
 
@@ -27,11 +27,11 @@ class animelist():
 
 	def gotoanime(self, animename):
 		try:
-			self.driver.get('https://myanimelist.net/animelist/{}'.format(secrets._id))
+			self.driver.get('https://myanimelist.net/animelist/{}'.format(data.secrets._id))
 		except Exception:
 			pass
 		sleep(3)
-		self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
+		self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 		anime_elem = self.driver.find_element_by_xpath("//tr[contains(text(), animename)]")
 		anime_elem.click()
 		print(anime_elem)
@@ -42,9 +42,9 @@ class animelist():
 		btn.click()
 
 #Check if secrete.py contains login credentials
-if secrets._id != '' and secrets._pass !='':
+if data.secrets._id != '' and data.secrets._pass !='':
 	bot = animelist()
 	bot.login()
-	bot.gotoanime(animename='37403/Ahiru_no_Sora')
+	bot.gotoanime(animename='Ahiru no Sora')
 else:
 	print("MAL Login ID not set. Run client with '--mal-id <username> <password>' to set one up!")
