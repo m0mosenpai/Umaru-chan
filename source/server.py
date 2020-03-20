@@ -5,12 +5,26 @@ import datetime
 import pytz
 import subprocess
 import json
+import pickle
 from downloader.downloader import items
 from downloader.downloader.spiders import anime_downloader
 
 BUFFSIZE = 2048
 ACTIVE = True
-path = ''
+LAST_REFRESH = ""
+PATH = ""
+
+#A context manager class which changes the working directory
+class cd:
+    def __init__(self, newPath):
+        self.newPath = os.path.expanduser(newPath)
+
+    def __enter__(self):
+        self.savedPath = os.getcwd()
+        os.chdir(self.newPath)
+
+    def __exit__(self, etype, value, traceback):
+        os.chdir(self.savedPath)
 
 #PDT time for HorribleSubs
 def getPDT():
@@ -53,6 +67,11 @@ def getSchedule():
 
 #Upon request from client, sends response. Else, keep scraping
 def sendResponse():
+	global BUFFSIZE	
+	global ACTIVE
+	global LAST_REFRESH	
+	global PATH
+
 	#Opens TCP ipv4 socket on specified port and host
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -66,48 +85,73 @@ def sendResponse():
 
 		clientsocket, address = s.accept()
 		#Connection history is stored in log file
-		with open("LogFile.txt", "a") as log:
+		with open("data/LogFile.txt", "a") as log:
 			log.write("{} connected! on {} \n".format(address, local_datetime))
-			
+		
 		client_msg = clientsocket.recv(BUFFSIZE).decode('utf-8')
 
 		#If send-status ping is received, IST and PDT is sent along with activity status
 		if client_msg == "send-status":
 			time = "Local Time: {}	PDT: {} \n".format(local_time, getPDT())
 			clientsocket.send(bytes(time, 'utf-8'))
+			if LAST_REFRESH != "":
+				clientsocket.send(bytes("Last Refresh: {} \n".format(LAST_REFRESH), 'utf-8'))
+
 			if ACTIVE == True:
 				clientsocket.send(bytes("Umaru-chan is working hard! \n", 'utf-8'))
 			else:
 				clientsocket.send(bytes("All done for the day! \n", 'utf-8'))
 			
 		#If show-watchlist ping is received, watchlist is sent to the client	
-		if client_msg == "show-watchlist":
-			clientsocket.send(bytes("Your Watchlist: \n", 'utf-8'))
-			watchlist = getWatchlist()
+		elif client_msg == "show-watchlist":
+			watchlist = pickle.dumps(getWatchlist())
+			clientsocket.send(watchlist)
 
 		#If a login header is found in the message, user and pass is extracted and stored in secrets.py	
-		if client_msg[:5] == "login":
+		elif client_msg[:5] == "login":
 			u = client_msg[5:].split(':')[0]
 			p = client_msg[5:].split(':')[1]
 
-			with open("secrets.py", 'w') as secrets:
+			with open("data/secrets.py", 'w') as secrets:
 				secrets.write("_id = \"{}\"\n".format(u))
 				secrets.write("_pass = \"{}\"\n".format(p))
 
 			clientsocket.send(bytes("MAL Login ID set! Check secret.py.\n", 'utf-8'))
 			clientsocket.send(bytes("Auto list-updation is on. Don't forget to add anime to your 'Watching' list on MAL!\n", 'utf-8'))
 
-#Main process - runs forever once started
-def mainProcess():	
-	while True:
-		schedule = getSchedule()
-		watchlist = getWatchlist()
-		for show in watchlist:
-			#TO-DO
-			#Need a flexible search/compare criteria for show names
-			if show in schedule.keys():
-				#Check if the show is out yet
-				if timeCompare(schedule[show]):
-					#Start scraping every 10 minutes
-				else:
-					#Do nothing and wait
+		#If path header is found, set path	
+		elif client_msg[:4] == "path":
+			PATH = client_msg[4:]
+			clientsocket.send(bytes("Default download directory set! \n", 'utf-8'))
+
+		#If a refresh ping is received, database is refreshed by calling scrapy	
+		elif client_msg == "refresh":
+			#Change directory temporarily
+			with cd("downloader/downloader"):
+				devnull = open(os.devnull, 'w')
+				subprocess.call('scrapy crawl anime -o ../../data/data.json', stdout=devnull)
+
+			LAST_REFRESH = local_datetime.ctime()	
+			clientsocket.send(bytes("Database refreshed successfully!.\n", 'utf-8'))
+
+		#If no incoming message, close socket and break	
+		else:
+			s.shutdown()
+			s.close()
+			break
+
+#Main process - runs forever once started	
+while True:
+	schedule = getSchedule()
+	watchlist = getWatchlist()
+	for show in watchlist:
+		#TO-DO
+		#Need a flexible search/compare criteria for show names
+		if show in schedule.keys():
+			#Check if the show is out yet
+			if timeCompare(schedule[show]):
+				#Start scraping every 10 minutes
+			else:
+				continue
+				#Do nothing and wait
+	sendResponse()				
