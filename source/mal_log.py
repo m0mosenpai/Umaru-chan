@@ -37,12 +37,16 @@ class animelist():
 		sleep(2)
 		self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 		anime_elem = self.driver.find_element_by_link_text(animename)
-		anime_elem.click()
+		#anime_elem.click()
+		try:
+			self.driver.get(anime_elem)
+		except Exception:
+			pass
 		print(anime_elem)
 
 	def updateanime(self):
-		self.driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
-		btn = self.driver.find_element_by_class_name("""//*[@id="list-container"]/div[3]/div/table/tbody[1]/tr[0]/td[6]/div/a/i""")
+		#self.driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
+		btn = self.driver.find_element_by_class_name('js-anime-increment-episode-button')
 		btn.click()
 
 #Check if secrete.py contains login credentials
