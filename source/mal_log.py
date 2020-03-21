@@ -4,6 +4,9 @@ from selenium.webdriver.chrome.options import Options
 import data.secrets as secrets
 from time import sleep
 
+#global
+RETRIES = 10
+
 class animelist():
 	def __init__(self):
 		chrome_options = Options()
@@ -35,24 +38,30 @@ class animelist():
 		except Exception:
 			pass
 		sleep(2)
-		self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-		anime_elem = self.driver.find_element_by_link_text(animename)
-		#anime_elem.click()
-		try:
-			self.driver.get(anime_elem)
-		except Exception:
-			pass
-		print(anime_elem)
+
+		for r in range(RETRIES) or anime_elem is not None:
+			try:
+				self.driver.execute_script("window.scrollTo(0, 100)") 
+				anime_elem = self.driver.find_element_by_link_text(animename)
+				anime_elem.click()
+			except Exception:
+				print("couldn't find")
 
 	def updateanime(self):
+		sleep(2)
 		#self.driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
-		btn = self.driver.find_element_by_class_name('js-anime-increment-episode-button')
-		btn.click()
+		for r in range(RETRIES) or btn is not None:
+			try:
+				btn = self.driver.find_element_by_class_name('js-anime-increment-episode-button')
+				btn.click()
+			except Exception:
+				print("couldn't update")
 
 #Check if secrete.py contains login credentials
 if secrets._id != '' and secrets._pass !='':
 	bot = animelist()
 	bot.login()
 	bot.gotoanime(animename='Ahiru no Sora')
+	bot.updateanime()
 else:
 	print("MAL Login ID not set. Run client with '--mal-id <username> <password>' to set one up!")
