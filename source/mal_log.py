@@ -11,6 +11,9 @@ class animelist():
 		self.driver = webdriver.Chrome(chrome_options=chrome_options)
 		self.driver.maximize_window()
 
+		print('command_executor: ' + self.driver.command_executor._url)
+		print('session_id: ' + self.driver.session_id)
+
 	def login(self):
 		self.driver.get("https://myanimelist.net/login.php?")
 		sleep(5)
@@ -31,9 +34,9 @@ class animelist():
 			self.driver.get('https://myanimelist.net/animelist/{}'.format(secrets._id))
 		except Exception:
 			pass
-		sleep(3)
+		sleep(2)
 		self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-		anime_elem = self.driver.find_element_by_xpath("//tr[contains(text(), animename)]")
+		anime_elem = self.driver.find_element_by_link_text(animename)
 		anime_elem.click()
 		print(anime_elem)
 
