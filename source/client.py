@@ -13,8 +13,11 @@ def status(s):
 		status_ping = "send-status".encode('utf-8')
 		s.send(status_ping)
 
-		msg = s.recv(BUFFSIZE).decode('utf-8')
-		print(msg, end='')
+		try:
+			msg = s.recv(BUFFSIZE).decode('utf-8')
+			print(msg, end='')
+		except socket.timeout:
+			break
 
 def watchlist(s):
 	while True:
@@ -22,18 +25,25 @@ def watchlist(s):
 		watchlist_ping = "show-watchlist".encode('utf-8')
 		s.send(watchlist_ping)
 
-		msg = s.recv(BUFFSIZE) 
-		watchlist = pickle.loads(msg)
-		print("Your Watchlist:\n {}".format(watchlist), end='')
+		try:
+			msg = s.recv(BUFFSIZE) 
+			watchlist = pickle.loads(msg)
+			print("Your Watchlist:\n {}".format(watchlist))
+		except socket.timeout:
+			break
 
 def refresh(s):
+	s.settimeout(5)
 	while True:
 		#Send ping request to refresh watchlist
 		refresh_ping = "refresh".encode('utf-8')
 		s.send(refresh_ping)
 
-		msg = s.recv(BUFFSIZE).decode('utf-8')
-		print(msg, end='')
+		try:
+			msg = s.recv(BUFFSIZE).decode('utf-8')
+			print(msg, end='')
+		except socket.timeout:
+			break
 
 def setPATH(s, directory):
 	while True:
@@ -41,17 +51,23 @@ def setPATH(s, directory):
 		path = 'path' + directory
 		s.send(path.encode('utf-8'))
 
-		msg = s.recv(BUFFSIZE).decode('utf-8')
-		print(msg, end='')
+		try:
+			msg = s.recv(BUFFSIZE).decode('utf-8')
+			print(msg)
+		except socket.timeout:
+			break
 
 def setMAL(s, username, password):
-	while True:	
+	while True:
 		#Send login credentials to server by prepending login header
 		cred = 'login' + username + ':' + password
 		s.send(cred.encode('utf-8'))
 
-		msg = s.recv(BUFFSIZE).decode('utf-8')
-		print(msg, end='')
+		try:
+			msg = s.recv(BUFFSIZE).decode('utf-8')
+			print(msg, end='')
+		except socket.timeout:
+			break
 
 parser = argparse.ArgumentParser(description="Command-line interface for Umaru-chan")
 parser.add_argument('-s', '--status', help="Displays current status.",action='store_true')
@@ -63,6 +79,7 @@ args = parser.parse_args()
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((socket.gethostname(), 6969))
+s.settimeout(2)
 
 try:
 	if args.status:
@@ -84,5 +101,4 @@ except KeyboardInterrupt:
 	print("Keyboard Interrupt Detected!")
 
 finally:
-	print("Closing socket...")
 	s.close()
