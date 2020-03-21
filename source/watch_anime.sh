@@ -21,7 +21,6 @@ printf "\n"
 #Global Variables
 path="/media/bitlockermount/Users/sarth/Documents/Anime"
 declare -A file_list
-file_count=$(ls $path -1 | wc -l)
 
 #Mounts Bitlocker Encrypted Drive (if not already mounted)
 #Comment out this function if you dont have a Bitlocker encrypted partition or have your library in linux itself.
@@ -79,6 +78,7 @@ removePrompt() {
 #Main function
 mountDrive
 createFileList
+file_count=$(ls $path -1 | wc -l)
 
 printf "\n"
 read -p "Select media file [1-$file_count]: " choice1
