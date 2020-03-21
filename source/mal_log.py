@@ -1,6 +1,7 @@
+#!/usr/bin/env python3
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-import data.secrets
+import data.secrets as secrets
 from time import sleep
 
 class animelist():
@@ -15,10 +16,10 @@ class animelist():
 		sleep(5)
 
 		email = self.driver.find_element_by_xpath("""//*[@id="loginUserName"]""")
-		email.send_keys(data.secrets._id)
+		email.send_keys(secrets._id)
 
 		password = self.driver.find_element_by_xpath("""//*[@id="login-password"]""")
-		password.send_keys(data.secrets._pass)
+		password.send_keys(secrets._pass)
 
 		sleep(2)
 
@@ -27,7 +28,7 @@ class animelist():
 
 	def gotoanime(self, animename):
 		try:
-			self.driver.get('https://myanimelist.net/animelist/{}'.format(data.secrets._id))
+			self.driver.get('https://myanimelist.net/animelist/{}'.format(secrets._id))
 		except Exception:
 			pass
 		sleep(3)
@@ -42,7 +43,7 @@ class animelist():
 		btn.click()
 
 #Check if secrete.py contains login credentials
-if data.secrets._id != '' and data.secrets._pass !='':
+if secrets._id != '' and secrets._pass !='':
 	bot = animelist()
 	bot.login()
 	bot.gotoanime(animename='Ahiru no Sora')
