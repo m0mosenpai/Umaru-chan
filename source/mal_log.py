@@ -33,6 +33,7 @@ class animelist():
 		btn.click()
 
 	def gotoanime(self, animename):
+		#f.get(animename)
 		try:
 			self.driver.get('https://myanimelist.net/animelist/{}'.format(secrets._id))
 		except Exception:

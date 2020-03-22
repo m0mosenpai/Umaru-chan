@@ -62,12 +62,17 @@ def getWatchlist():
 	return watchlist[:-1]
 
 #Gets scraped data from the data directory
-def getSchedule():
+def getScheduleAndShows():
+	#Change to scrapy directory
+	with cd("downloader/downloader"):
+		#Runs scrapy; remove the --nolog option to see logs in server.py output
+		subprocess.run(["scrapy", "crawl", "anime", "--nolog"])
+
 	with open('data/data.json') as d:
 		data = json.load(d)
 	
 	#Dictionary of today's shows and their timings	
-	schedule = data[0]['timetable']
+	schedule = data
 	return schedule
 
 #Upon request from client, sends response. Else, keep scraping
@@ -133,10 +138,9 @@ def sendResponse():
 
 			#If a refresh ping is received, database is refreshed by calling scrapy	
 			elif client_msg == "refresh":
-				with cd("data"):
-					if os.path.exists("data.json"):
-						#Remove current data.json
-						os.remove("data.json")
+				if os.path.exists("data/data.json"):
+					#Remove current data.json
+					os.remove("data/data.json")
 
 				#Change to scrapy directory
 				with cd("downloader/downloader"):
@@ -158,23 +162,27 @@ def sendResponse():
 
 #Main process - runs forever once started	
 while True:
-	schedule = getSchedule()
+	schedule = getScheduleAndShows()
 	watchlist = getWatchlist()
 	#Loop through the watchlist
-	for show in watchlist:
+	print('Schedule: {}'.format(schedule))
+	print('Watchlist: {}'.format(watchlist))
+	fs = fuzzyset.FuzzySet()
+	for show in schedule["current_season"]:
 		#Take one show at a time and add to fuzzyset
-		fs = fuzzyset.FuzzySet()
 		fs.add(show)
-		tmp = []
-		#Loop through today's schedule and fuzzy match each key to show in watchlist
-		for key in schedule.keys():
-			tmp.append(fs.get(key))
-		if max(tmp)[0] >= 0.8
+	#print('Exact Set: {}'.format(fs.exact_set))
+	tmp = []
+	#Loop through today's schedule and fuzzy match each key to show in watchlist
+	for key in schedule.keys():
+		tmp.append(fs.get(key))
+	if max(tmp)[0] >= 0.8:
 		show = max(tmp)[0]
-		#Check if the show is out yet
-		if timeCompare(schedule[show]):
-			#Start scraping every 10 minutes
-		else:
-			continue
-			#Do nothing and wait
-	sendResponse()				
+	#Check if the show is out yet
+	if timeCompare(schedule[show]):
+		#Start scraping every 10 minutes
+		pass
+	else:
+		continue
+		#Do nothing and wait
+	sendResponse()
