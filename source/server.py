@@ -129,13 +129,6 @@ def sendResponse():
 				clientsocket.send(bytes("MAL Login ID set! Check secret.py.\n", 'utf-8'))
 				clientsocket.send(bytes("Auto list-updation is on. Don't forget to add anime to your 'Watching' list on MAL!\n", 'utf-8'))
 
-			#If path header is found, set path	
-			elif client_msg[:4] == "path":
-				PATH = client_msg[4:]
-				with open("data/path.txt", "w") as path:
-					path.write(PATH)
-				clientsocket.send(bytes("Default download directory set! \n", 'utf-8'))
-
 			#If a refresh ping is received, database is refreshed by calling scrapy	
 			elif client_msg == "refresh":
 				if os.path.exists("data/data.json"):
