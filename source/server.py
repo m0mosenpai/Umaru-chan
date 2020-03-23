@@ -58,11 +58,11 @@ def getWatchlist():
 			watchlist = file.read().split('\n')
 	else:
 		with open("data/watchlist.txt", 'w') as file:
-			watchlist = file.read().split('\n')	
-	return watchlist[:-1]
+			watchlist = file.read().split('\n')
+	return watchlist
 
 #Gets scraped data from the data directory
-def getScheduleAndShows():
+def getShows():
 	#Change to scrapy directory
 	with cd("downloader/downloader"):
 		#Runs scrapy; remove the --nolog option to see logs in server.py output
@@ -70,10 +70,9 @@ def getScheduleAndShows():
 
 	with open('data/data.json') as d:
 		data = json.load(d)
-	
-	#Dictionary of today's shows and their timings	
-	schedule = data
-	return schedule
+
+	#Dictionary with entire data
+	return data
 
 #Upon request from client, sends response. Else, keep scraping
 def sendResponse():
@@ -154,28 +153,52 @@ def sendResponse():
 		print("\nKeyboard Interrupt Detected!")
 
 #Main process - runs forever once started	
+interval = 30 #in seconds
+should_check = True
 while True:
-	schedule = getScheduleAndShows()
-	watchlist = getWatchlist()
-	#Loop through the watchlist
-	print('Schedule: {}'.format(schedule))
-	print('Watchlist: {}'.format(watchlist))
-	fs = fuzzyset.FuzzySet()
-	for show in schedule["current_season"]:
-		#Take one show at a time and add to fuzzyset
-		fs.add(show)
-	#print('Exact Set: {}'.format(fs.exact_set))
-	tmp = []
-	#Loop through today's schedule and fuzzy match each key to show in watchlist
-	for key in schedule.keys():
-		tmp.append(fs.get(key))
-	if max(tmp)[0] >= 0.8:
-		show = max(tmp)[0]
-	#Check if the show is out yet
-	if timeCompare(schedule[show]):
-		#Start scraping every 10 minutes
-		pass
-	else:
-		continue
-		#Do nothing and wait
-	sendResponse()
+	if should_check is True:
+		start = time.monotonic()
+
+	#Run below every 10 mins
+	if (should_check):
+		print("PRINT!")
+		should_check = False
+		data = getShows()
+		watchlist = getWatchlist()
+		#print('Watchlist as entered by the baka user: {}'.format(watchlist))
+		#Loop through the watchlist
+		season_fset = fuzzyset.FuzzySet()
+		#Add all shows in current season to fuzzy set
+		for show in data["current_season"]:
+			season_fset.add(show)
+
+		#Get actual watchlist (Names according to hs)
+		f_watchlist = []
+		for show in watchlist:
+			#print(season_fset.get(show))
+			f_watchlist.append(season_fset.get(show)[0][1])
+
+		#print('Correct watchlist: {}'.format(f_watchlist))
+
+		#last ep downloaded data
+		last_down = {}
+		if os.path.exists('data/last_down.json') is False:
+			with open('data/last_down.json', 'w') as f:
+				json.dump(last_down, f)
+		with open('data/last_down.json', 'r') as f:
+			last_down = json.load(f)
+
+		#Download if new ep is found
+		#new_ep_num = getListOfNewEps() - This function will return the latest ep no. of all shows in watchlist
+		#shows_download = getShowsToDown(new_ep_num, last_down) - Compare and find which shows to download
+		#downloadShows(shows_download)
+
+		#print(last_down)
+
+	now = time.monotonic()
+	if (now - start > interval):
+		should_check = True
+
+	#break
+	
+	#sendResponse()
