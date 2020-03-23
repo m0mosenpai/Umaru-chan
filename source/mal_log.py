@@ -3,6 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import data.secrets as secrets
 from time import sleep
+import sys
 
 #global
 RETRIES = 10
@@ -57,12 +58,15 @@ class animelist():
 				btn.click()
 			except Exception:
 				print("couldn't update")
+#sets animename from command line argument
+arglist = sys.argv
+animename = arglist[1]
 
 #Check if secrete.py contains login credentials
 if secrets._id != '' and secrets._pass !='':
 	bot = animelist()
 	bot.login()
-	bot.gotoanime(animename='Ahiru no Sora')
+	bot.gotoanime(animename)
 	bot.updateanime()
 else:
 	print("MAL Login ID not set. Run client with '--mal-id <username> <password>' to set one up!")

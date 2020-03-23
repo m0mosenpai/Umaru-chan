@@ -98,7 +98,7 @@ else:
 		print("\nKeyboard Interrupt Detected!")
 
 	except socket.error:
-		print("\nConnection Error!")
+		print("Connection Error!")
 
 	finally:
 		s.close()
