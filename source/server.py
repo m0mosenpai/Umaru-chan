@@ -59,7 +59,7 @@ def getWatchlist():
 	else:
 		with open("data/watchlist.txt", 'w') as file:
 			watchlist = file.read().split('\n')
-	return watchlist
+	return watchlist[:-1]
 
 #Gets scraped data from the data directory
 def getShows():
@@ -165,7 +165,7 @@ while True:
 		should_check = False
 		data = getShows()
 		watchlist = getWatchlist()
-		#print('Watchlist as entered by the baka user: {}'.format(watchlist))
+		print('Watchlist as entered by the baka user: {}'.format(watchlist))
 		#Loop through the watchlist
 		season_fset = fuzzyset.FuzzySet()
 		#Add all shows in current season to fuzzy set
@@ -175,10 +175,10 @@ while True:
 		#Get actual watchlist (Names according to hs)
 		f_watchlist = []
 		for show in watchlist:
-			#print(season_fset.get(show))
+			# print(type(season_fset.get(show)))
 			f_watchlist.append(season_fset.get(show)[0][1])
 
-		#print('Correct watchlist: {}'.format(f_watchlist))
+		print('Correct watchlist: {}'.format(f_watchlist))
 
 		#last ep downloaded data
 		last_down = {}

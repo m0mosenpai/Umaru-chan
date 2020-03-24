@@ -1,6 +1,6 @@
 import os
 import subprocess
-import fuzzyset
+import re
 
 #A context manager class which changes the working directory
 class cd:
@@ -18,6 +18,7 @@ class cd:
 def createFileList(PATH):
 	with cd(PATH):
 		os.system('clear')
+		print("(In {}) \n".format(PATH))
 		filedict = {}
 		cnt = 0
 		files = os.listdir()
@@ -26,7 +27,7 @@ def createFileList(PATH):
 			print("{}: {}".format(cnt, file))
 			cnt += 1
 		#Asks user to choose a media file to play.	
-		choice = int(input("Select media file [0 - {}]: \n".format(len(filedict))))
+		choice = int(input("\nSelect media file [0 - {}]: \n".format(len(filedict) - 1)))
 		filename = filedict[choice]
 		#Check if chosen file is a regular file or a directory
 		if os.path.isfile(filename):
@@ -48,11 +49,11 @@ def createFileList(PATH):
 
 #calls mal_log.py to update anime
 def updateMAL(filename):
-	#TO-DO
-	#Fuzzyset here
-	animename = filename
+	#Gets anime name from file name but splitting around () or [] and stripping off white spaces
+	animename = re.split("\]|\)|\[|\(", filename)[2].split('-')[0].strip()
 	print("Updating episode count on MAL...")
 	subprocess.run(["python3", "mal_log.py", animename])
+	print("Done.")
 
 #main function
 def main():
