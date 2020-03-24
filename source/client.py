@@ -49,7 +49,7 @@ def refresh(s):
 def setPATH(PATH):
 	with open("data/path.txt", "w+") as path:
 		path.write(PATH)
-	print("Default download directory set!")
+	print("\033[92mDefault download directory set!\033[0m")
 
 def setMAL(s, username, password):
 	while True:
@@ -91,14 +91,14 @@ else:
 		elif args.mal_id != None:
 			setMAL(s, args.mal_id[0], args.mal_id[1])
 		else:
-			print("Atleast one argument is required!")
+			print("\033[91mAtleast one argument is required!\033[0m")
 			parser.print_help()
 
 	except KeyboardInterrupt:
-		print("\nKeyboard Interrupt Detected!")
+		print("\n\033[91mKeyboard Interrupt Detected!\033[0m")
 
 	except socket.error:
-		print("Connection Error!")
+		print("\033[91mConnection Error!\033[0m")
 
 	finally:
 		s.close()

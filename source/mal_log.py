@@ -4,6 +4,7 @@ from selenium.webdriver.chrome.options import Options
 import data.secrets as secrets
 from time import sleep
 import sys
+import fuzzyset
 
 #global
 RETRIES = 10
@@ -43,6 +44,9 @@ class animelist():
 
 		for r in range(RETRIES) or anime_elem is not None:
 			try:
+				anilist = self.driver.find_element_by_xpath("""//tbody[@class="list-item"]""")
+				# print(anilist)
+				# exit()
 				self.driver.execute_script("window.scrollTo(0, 100)") 
 				anime_elem = self.driver.find_element_by_link_text(animename)
 				anime_elem.click()
@@ -69,4 +73,4 @@ if secrets._id != '' and secrets._pass !='':
 	bot.gotoanime(animename)
 	bot.updateanime()
 else:
-	print("MAL Login ID not set. Run client with '--mal-id <username> <password>' to set one up!")
+	print("\033[91mMAL Login ID not set. Run client with '--mal-id <username> <password>' to set one up!\033[0m")

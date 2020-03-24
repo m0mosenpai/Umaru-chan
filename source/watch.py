@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 import subprocess
 import re
@@ -18,16 +19,16 @@ class cd:
 def createFileList(PATH):
 	with cd(PATH):
 		os.system('clear')
-		print("(In {}) \n".format(PATH))
+		print("(In \033[95m{}\033[0m)\n".format(PATH))
 		filedict = {}
 		cnt = 0
 		files = os.listdir()
 		for file in files:
 			filedict[cnt] = file
-			print("{}: {}".format(cnt, file))
+			print("{}: \033[93m{}\033[0m".format(cnt, file))
 			cnt += 1
 		#Asks user to choose a media file to play.	
-		choice = int(input("\nSelect media file [0 - {}]: \n".format(len(filedict) - 1)))
+		choice = int(input("\nSelect media file [0 - {}]: ".format(len(filedict) - 1)))
 		filename = filedict[choice]
 		#Check if chosen file is a regular file or a directory
 		if os.path.isfile(filename):
@@ -40,7 +41,7 @@ def createFileList(PATH):
 			createFileList(filename)
 		else:
 			#Else, invalid file type.
-			print("Invalid file/directory.")
+			print("\033[91mInvalid file/directory.\033[0m")
 	
 	choice = input("Do you want to update episode count on MAL? (y/n)\n")
 	if choice == 'y':
@@ -62,7 +63,7 @@ def main():
 		PATH = f.read()
 	#Exits if path not set	
 	if PATH == '':
-		print("Download directory not set. Run with -p/--path <PATH> to set one up!")
+		print("\033[91mDownload directory not set. Run with -p/--path <PATH> to set one up!\033[0m")
 		exit()
 
 	createFileList(PATH)
@@ -71,4 +72,4 @@ if __name__ == "__main__":
 	try:
 		main()
 	except KeyboardInterrupt:
-		print("\nKeyboard Interrupt Detected. Exiting.")
+		print("\n\033[91mKeyboard Interrupt Detected. Exiting.\033[0m")

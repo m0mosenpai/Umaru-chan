@@ -125,8 +125,8 @@ def sendResponse():
 					secrets.write("_id = \"{}\"\n".format(u))
 					secrets.write("_pass = \"{}\"\n".format(p))
 
-				clientsocket.send(bytes("MAL Login ID set! Check secret.py.\n", 'utf-8'))
-				clientsocket.send(bytes("Auto list-updation is on. Don't forget to add anime to your 'Watching' list on MAL!\n", 'utf-8'))
+				clientsocket.send(bytes("\033[92mMAL Login ID set! Check secret.py.\033[0m\n", 'utf-8'))
+				clientsocket.send(bytes("\033[92mAuto list-updation is on. Don't forget to add anime to your 'Watching' list on MAL!\033[0m\n", 'utf-8'))
 
 			#If a refresh ping is received, database is refreshed by calling scrapy	
 			elif client_msg == "refresh":
@@ -140,7 +140,7 @@ def sendResponse():
 					subprocess.run(["scrapy", "crawl", "anime", "-o", "../../data/data.json", "--nolog"])
 
 				LAST_REFRESH = local_datetime.ctime()	
-				clientsocket.send(bytes("Database refreshed successfully!\n", 'utf-8'))
+				clientsocket.send(bytes("\033[92mDatabase refreshed successfully!\033[0m\n", 'utf-8'))
 
 			#If no incoming message, close socket and break	
 			else:
@@ -150,7 +150,7 @@ def sendResponse():
 	# 	print("Socket error detected!")
 
 	except KeyboardInterrupt:
-		print("\nKeyboard Interrupt Detected!")
+		print("\n\033[91mKeyboard Interrupt Detected!\033[0m")
 
 #Main process - runs forever once started	
 interval = 30 #in seconds
