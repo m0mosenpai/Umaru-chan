@@ -135,7 +135,6 @@ pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycairo==1.16.2
 pycparser==2.20
-pycrypto==2.6.1
 pycups==1.9.73
 PyDispatcher==2.0.5
 pygobject==3.26.1
