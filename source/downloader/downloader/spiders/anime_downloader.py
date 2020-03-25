@@ -15,7 +15,7 @@ class animeDownloader(scrapy.Spider):
 	def parse_season(self, response):
 		global items
 		# items = CurrentSeasonItem()
-		items['current_season'] = response.xpath('//div[@class="ind-show"]/a/text()').extract()
+		items['current_season'] = response.xpath('//div[@class="ind-show"]/a/@title').extract()
 		#print(type(items))
 		with open('../../data/data.json', 'w') as f:
 			json.dump(items, f)

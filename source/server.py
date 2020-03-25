@@ -152,6 +152,9 @@ def sendResponse():
 	except KeyboardInterrupt:
 		print("\n\033[91mKeyboard Interrupt Detected!\033[0m")
 
+def getListOfNewEps():
+	subprocess.run(["scrapy", "crawl", "hslatest"])
+
 #Main process - runs forever once started	
 interval = 30 #in seconds
 should_check = True
