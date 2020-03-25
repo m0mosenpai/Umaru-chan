@@ -35,7 +35,7 @@ decorator==4.4.1
 defer==1.0.6
 defusedxml==0.6.0
 distro-info===0.18ubuntu0.18.04.1
-Django==3.0.2
+Django==3.0.3
 django-appconf==1.0.3
 django-auditlog==0.4.7
 django-celery-results==1.1.2
