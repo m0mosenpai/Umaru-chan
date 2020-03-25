@@ -108,7 +108,7 @@ parsel==1.5.2
 pathlib==1.0.1
 pexpect==4.2.1
 pilkit==2.0
-Pillow==5.1.0
+Pillow==6.2.0
 Protego==0.1.16
 protobuf==3.0.0
 protonvpn-cli==2.2.2
