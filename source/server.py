@@ -59,7 +59,7 @@ def getWatchlist():
 	else:
 		with open("data/watchlist.txt", 'w') as file:
 			watchlist = file.read().split('\n')
-	return watchlist[:-1]
+	return watchlist
 
 #Gets scraped data from the data directory
 def getShows():
@@ -153,7 +153,21 @@ def sendResponse():
 		print("\n\033[91mKeyboard Interrupt Detected!\033[0m")
 
 def getListOfNewEps():
-	subprocess.run(["scrapy", "crawl", "hslatest"])
+	with cd("downloader/downloader"):
+		output = subprocess.run(["scrapy", "crawl", "hslatest", "--nolog"])
+
+	latestnum = {}
+	with open('data/latestnum.json', 'r') as f:
+		latestnum = json.load(f)
+
+	return latestnum
+
+def initializeld(watchlist):
+	ld = {}
+	for show in watchlist:
+		ld[show] = 0
+
+	return ld
 
 #Main process - runs forever once started	
 interval = 30 #in seconds
@@ -177,26 +191,38 @@ while True:
 
 		#Get actual watchlist (Names according to hs)
 		f_watchlist = []
+
 		for show in watchlist:
 			# print(type(season_fset.get(show)))
 			f_watchlist.append(season_fset.get(show)[0][1])
 
 		print('Correct watchlist: {}'.format(f_watchlist))
 
-		#last ep downloaded data
-		last_down = {}
-		if os.path.exists('data/last_down.json') is False:
-			with open('data/last_down.json', 'w') as f:
-				json.dump(last_down, f)
-		with open('data/last_down.json', 'r') as f:
-			last_down = json.load(f)
+		with open('data/watchlist.txt', 'w') as f:
+			for i in range(len(f_watchlist)):
+				if i == len(f_watchlist) - 1:
+					f.write('{}'.format(f_watchlist[i]))
+				else:
+					f.write('{}\n'.format(f_watchlist[i]))
 
+
+		print('Updated!')
+
+		#last ep downloaded data
+		last_down = initializeld(watchlist)
+		# if os.path.exists('data/last_down.json') is False:
+		# 	with open('data/last_down.json', 'w') as f:
+		# 		json.dump(last_down, f)
+		# with open('data/last_down.json', 'r') as f:
+		# 	last_down = json.load(f)
+
+		#print(getListOfNewEps())
 		#Download if new ep is found
-		#new_ep_num = getListOfNewEps() - This function will return the latest ep no. of all shows in watchlist
-		#shows_download = getShowsToDown(new_ep_num, last_down) - Compare and find which shows to download
+		new_ep_num = getListOfNewEps() #This function will return the latest ep no. of all shows in watchlist
+		#shows_download = getShowsToDown(new_ep_num, last_down) #Compare and find which shows to download
 		#downloadShows(shows_download)
 
-		#print(last_down)
+		print(last_down)
 
 	now = time.monotonic()
 	if (now - start > interval):

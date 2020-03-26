@@ -37,12 +37,20 @@ class animelist():
 	def gotoanime(self, animename):
 		#f.get(animename)
 		try:
-			self.driver.get('https://myanimelist.net/animelist/{}'.format(secrets._id))
+			self.driver.get('https://myanimelist.net/animelist/{}?status=1&tag='.format(secrets._id))
 		except Exception:
 			pass
 		sleep(2)
 
-		for r in range(RETRIES) or anime_elem is not None:
+		#fuzzy set
+		correct = fuzzyset.FuzzySet()
+		anames = self.driver.find_elements_by_xpath("""//a[@class="animetitle"]/span""")
+		if len(anames) == 0:
+			anames = self.driver.find_elements_by_xpath()
+		print(anames)
+
+		updated = False
+		for r in range(RETRIES) or updated is False:
 			try:
 				anilist = self.driver.find_element_by_xpath("""//tbody[@class="list-item"]""")
 				# print(anilist)
@@ -50,6 +58,7 @@ class animelist():
 				self.driver.execute_script("window.scrollTo(0, 100)") 
 				anime_elem = self.driver.find_element_by_link_text(animename)
 				anime_elem.click()
+				updated = True
 			except Exception:
 				print("couldn't find")
 
@@ -63,8 +72,9 @@ class animelist():
 			except Exception:
 				print("couldn't update")
 #sets animename from command line argument
-arglist = sys.argv
-animename = arglist[1]
+#arglist = sys.argv
+#animename = arglist[1]
+animename = 'Ahiru no Sora'
 
 #Check if secrete.py contains login credentials
 if secrets._id != '' and secrets._pass !='':

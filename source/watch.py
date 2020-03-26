@@ -35,7 +35,14 @@ def createFileList(PATH):
 			#Runs the file in vlc is it's a regular file
 			print("Opening file in VLC..")
 			#Errors are piped to /dev/null
-			subprocess.run(["vlc", filename], stderr=subprocess.DEVNULL)
+			try:
+				subprocess.run(["vlc", filename], stderr=subprocess.DEVNULL)
+			except Exception:
+				print('oops')
+			finally:
+				str1 = '"'+filename+'"'
+				print(str1)
+				subprocess.run(str1, stderr=subprocess.DEVNULL)
 		elif os.path.isdir(filename):
 			#If it's a directory, lists all files in it by recursively calling createFileList
 			createFileList(filename)
