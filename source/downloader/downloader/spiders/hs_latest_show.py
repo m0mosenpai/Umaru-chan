@@ -22,5 +22,18 @@ class HSlatestShow(scrapy.Spider):
 			#print(show)
 			links.append(response.xpath('//a[@title="'+ show +'"]/@href').extract())
 
-		#print(links)
-		for link in links:
+		# print(links[0][0])
+		# home = "https://horriblesubs.info/"
+		# link = home + links[0][0]
+		nyaa = "https://nyaa.si/?f=0&c=0_0&q=horriblesubs+"
+		name = "Boku no hero academia".replace(' ', '+')
+		show = nyaa + name + "+1080p"
+		yield scrapy.Request(show, callback = self.parse_show)
+		#for link in links:
+
+	def parse_show(self, response):
+		latest_ep = response.xpath('//tr/td[@colspan="2"]/a/@title').extract()[1]
+		#Check if latest_ep episode number is 1 greater than last downloaded, if yes, download it.
+		magnet_link = response.xpath('//tr/td[@class="text-center"]/a/@href').extract()[1]
+		print(magnet_link)
+		print(latest_ep)	
