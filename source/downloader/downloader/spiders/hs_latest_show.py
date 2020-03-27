@@ -46,18 +46,21 @@ class HSlatestShow(scrapy.Spider):
 
 
 	def parse_show(self, response):
-		latest_ep = response.xpath('//tr/td[@colspan="2"]/a/@title').extract()[1]
-		magnet_link = response.xpath('//tr/td[@class="text-center"]/a/@href').extract()[1]
+		latest_ep = response.xpath('//td[@colspan="2"]/a[not(@class)]/@title').extract()[0]
+		#print("|{}|".format(latest_ep))
+		magnet_link = response.xpath('//td[@class="text-center"]/a/@href').extract()[1]
 		#print(magnet_link)
 		aname = (latest_ep[latest_ep.index('] '):latest_ep.index(' -')][2:])
 		epno = (latest_ep[latest_ep.index('- '):latest_ep.index(' [')][2:])
+
+		#print("Latest episode of {} is {}".format(aname, epno))
 
 		currentep = int(watchlist[aname])
 		for i in range(currentep+1, int(epno) + 1): #ep no in config is the last downloaded ep
 			link = "https://nyaa.si"
 			link += response.xpath('//a[contains(text(), "- ' + f'{i:02}' +'")]/../following-sibling::td[1]/a/@href').extract()[0]
 			#print(response.xpath('//a[contains(text(), "' + f'{i:02}' +'")]/../following-sibling::td[1]/a/@href').extract()[0])
-			print("{}: {}, Link:{}".format(aname, i, link))
+			print("Found new episode({}) for {}".format(i, aname))
 			urllib.request.urlretrieve(link, path + aname + str(i) + ".torrent")
 			print("Downloaded!")
 

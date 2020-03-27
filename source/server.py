@@ -134,7 +134,7 @@ def checkNewAndDownload():
 		output = subprocess.run(["scrapy", "crawl", "hslatest", "--nolog"])
 
 #Main process - runs forever once started	
-interval = 6000 #in seconds
+interval = 600 #in seconds
 should_check = True
 while True:
 	if should_check is True:
