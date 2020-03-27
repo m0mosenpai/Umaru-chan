@@ -139,9 +139,6 @@ def getListOfNewEps():
 
 	return latestnum
 
-def getShowsToDown(new_ep_num, f_watchlist):
-	{"Ahiru no Sora": [1, 2, 3], ""}
-
 #Main process - runs forever once started	
 interval = 30 #in seconds
 should_check = True

@@ -1,9 +1,10 @@
 import scrapy
 import json
+import urllib.request
 
 links = []
-latest_num = {}
 watchlist = {}
+path = ""
 
 class HSlatestShow(scrapy.Spider):
 	name = 'hslatest'
@@ -11,6 +12,7 @@ class HSlatestShow(scrapy.Spider):
 
 	def parse(self, response):
 		global watchlist
+		global path
 		# data = {}
 		# season_shows = []
 		# global links
@@ -29,6 +31,8 @@ class HSlatestShow(scrapy.Spider):
 			config = json.load(f)
 			watchlist = config['watchlist']
 
+		path = config["main"]["path"]
+
 		for show in watchlist:
 			# print(links[0][0])
 			# home = "https://horriblesubs.info/"
@@ -42,19 +46,23 @@ class HSlatestShow(scrapy.Spider):
 
 
 	def parse_show(self, response):
-		global latest_num
 		latest_ep = response.xpath('//tr/td[@colspan="2"]/a/@title').extract()[1]
 		magnet_link = response.xpath('//tr/td[@class="text-center"]/a/@href').extract()[1]
 		#print(magnet_link)
 		aname = (latest_ep[latest_ep.index('] '):latest_ep.index(' -')][2:])
 		epno = (latest_ep[latest_ep.index('- '):latest_ep.index(' [')][2:])
 
-		currentep = watchlist[aname]
-		for currentep in range(int(epno) + 1):
-			magenet = response.xpath('//a[contains(text(), "' + currentep +'")]/../following-sibling::td[1]/a/@href').extract()[1]
-			
+		currentep = int(watchlist[aname])
+		for i in range(currentep+1, int(epno) + 1): #ep no in config is the last downloaded ep
+			link = "https://nyaa.si"
+			link += response.xpath('//a[contains(text(), "- ' + f'{i:02}' +'")]/../following-sibling::td[1]/a/@href').extract()[0]
+			#print(response.xpath('//a[contains(text(), "' + f'{i:02}' +'")]/../following-sibling::td[1]/a/@href').extract()[0])
+			print("{}: {}, Link:{}".format(aname, i, link))
+			urllib.request.urlretrieve(link, path + aname + str(i) + ".torrent")
+			print("Downloaded!")
 
-		latest_num[aname] = epno
-		#dump
-		with open("../../data/latestnum.json", 'w') as f:
-			json.dump(latest_num, f)
+		with open("../../data/config.json", "r+") as f:
+			config = json.load(f)
+			config["watchlist"][aname] = epno
+			f.seek(0)
+			json.dump(config, f, indent=4)
