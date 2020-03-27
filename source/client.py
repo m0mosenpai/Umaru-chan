@@ -51,17 +51,13 @@ def setPATH(PATH):
 		path.write(PATH)
 	print("\033[92mDefault download directory set!\033[0m")
 
-def setMAL(s, username, password):
-	while True:
-		#Send login credentials to server by prepending login header
-		cred = 'login' + username + ':' + password
-		s.send(cred.encode('utf-8'))
-
-		try:
-			msg = s.recv(BUFFSIZE).decode('utf-8')
-			print(msg, end='')
-		except socket.timeout:
-			break
+def setMAL(username, password):
+	#Send login credentials to server by prepending login header
+	with open("data/secrets.py", 'w') as secrets:
+		secrets.write("_id = \"{}\"\n".format(username))
+		secrets.write("_pass = \"{}\"\n".format(password))
+	print("\033[92mMAL Login ID set! Check secret.py.\033[0m")
+	print("\033[92mAuto list-updation is on. Don't forget to add anime to your 'Watching' list on MAL!\033[0m")
 
 parser = argparse.ArgumentParser(description="Command-line interface for Umaru-chan.")
 parser.add_argument('-s', '--status', help="Displays current status.",action='store_true')
@@ -76,6 +72,8 @@ if args.watch:
 	exec(open('watch.py').read())
 elif args.path != None:
 	setPATH(args.path[0])
+elif args.mal_id != None:
+	setMAL(args.mal_id[0], args.mal_id[1])
 else:
 	try:
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -88,8 +86,6 @@ else:
 			watchlist(s)
 		elif args.refresh:
 			refresh(s)
-		elif args.mal_id != None:
-			setMAL(s, args.mal_id[0], args.mal_id[1])
 		else:
 			print("\033[91mAtleast one argument is required!\033[0m")
 			parser.print_help()

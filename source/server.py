@@ -116,18 +116,6 @@ def sendResponse():
 				watchlist = pickle.dumps(getWatchlist())
 				clientsocket.send(watchlist)
 
-			#If a login header is found in the message, user and pass is extracted and stored in secrets.py	
-			elif client_msg[:5] == "login":
-				u = client_msg[5:].split(':')[0]
-				p = client_msg[5:].split(':')[1]
-
-				with open("data/secrets.py", 'w') as secrets:
-					secrets.write("_id = \"{}\"\n".format(u))
-					secrets.write("_pass = \"{}\"\n".format(p))
-
-				clientsocket.send(bytes("\033[92mMAL Login ID set! Check secret.py.\033[0m\n", 'utf-8'))
-				clientsocket.send(bytes("\033[92mAuto list-updation is on. Don't forget to add anime to your 'Watching' list on MAL!\033[0m\n", 'utf-8'))
-
 			#If a refresh ping is received, database is refreshed by calling scrapy	
 			elif client_msg == "refresh":
 				if os.path.exists("data/data.json"):
