@@ -2,6 +2,7 @@
 import os
 import subprocess
 import re
+import json
 
 #A context manager class which changes the working directory
 class cd:
@@ -33,16 +34,10 @@ def createFileList(PATH):
 		#Check if chosen file is a regular file or a directory
 		if os.path.isfile(filename):
 			#Runs the file in vlc is it's a regular file
+			print(filename)
 			print("Opening file in VLC..")
 			#Errors are piped to /dev/null
-			try:
-				subprocess.run(["vlc", filename], stderr=subprocess.DEVNULL)
-			except Exception:
-				print('oops')
-			finally:
-				str1 = '"'+filename+'"'
-				print(str1)
-				subprocess.run(str1, stderr=subprocess.DEVNULL)
+			subprocess.run(["vlc", filename], stderr=subprocess.DEVNULL)
 		elif os.path.isdir(filename):
 			#If it's a directory, lists all files in it by recursively calling createFileList
 			createFileList(filename)
@@ -50,7 +45,7 @@ def createFileList(PATH):
 			#Else, invalid file type.
 			print("\033[91mInvalid file/directory.\033[0m")
 	
-	choice = input("Do you want to update episode count on MAL? (y/n)\n")
+	choice = input("Do you want to update episode count on MAL? (y/n): ")
 	if choice == 'y':
 		updateMAL(filename)
 	return
@@ -66,10 +61,11 @@ def updateMAL(filename):
 #main function
 def main():
 	#Reads PATH from path.txt
-	with open('data/path.txt', 'r+') as f:
-		PATH = f.read()
+	with open('data/config.json', 'r+') as f:
+		config = json.load(f)
+		PATH = config['main']['path']
 	#Exits if path not set	
-	if PATH == '':
+	if PATH == "":
 		print("\033[91mDownload directory not set. Run with -p/--path <PATH> to set one up!\033[0m")
 		exit()
 

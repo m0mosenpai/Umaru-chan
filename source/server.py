@@ -5,11 +5,8 @@ import datetime
 import pytz
 import subprocess
 import json
-import pickle
 import fuzzyset
-import sched, time
-from downloader.downloader import items
-from downloader.downloader.spiders import anime_downloader as ad
+import time
 
 BUFFSIZE = 2048
 ACTIVE = True
@@ -53,12 +50,9 @@ def timeCompare(showtime):
 
 #Read watchlist from watchlist file
 def getWatchlist():
-	if (os.path.exists("data/watchlist.txt")):
-		with open("data/watchlist.txt", 'r') as file:
-			watchlist = file.read().split('\n')
-	else:
-		with open("data/watchlist.txt", 'w') as file:
-			watchlist = file.read().split('\n')
+	with open('data/config.json', 'r+') as f:
+		config = json.load(f)
+		watchlist = config['watchlist']
 	return watchlist
 
 #Gets scraped data from the data directory
@@ -110,11 +104,6 @@ def sendResponse():
 					clientsocket.send(bytes("Umaru-chan is working hard! \n", 'utf-8'))
 				else:
 					clientsocket.send(bytes("All done for the day! \n", 'utf-8'))
-				
-			#If show-watchlist ping is received, watchlist is sent to the client	
-			elif client_msg == "show-watchlist":
-				watchlist = pickle.dumps(getWatchlist())
-				clientsocket.send(watchlist)
 
 			#If a refresh ping is received, database is refreshed by calling scrapy	
 			elif client_msg == "refresh":
@@ -186,13 +175,11 @@ while True:
 
 		print('Correct watchlist: {}'.format(f_watchlist))
 
-		with open('data/watchlist.txt', 'w') as f:
-			for i in range(len(f_watchlist)):
-				if i == len(f_watchlist) - 1:
-					f.write('{}'.format(f_watchlist[i]))
-				else:
-					f.write('{}\n'.format(f_watchlist[i]))
-
+		with open('data/config.json', 'r+') as f:
+			config = json.load(f)
+			config['watchlist'] = f_watchlist
+			f.seek(0)
+			json.dump(config, f)
 
 		print('Updated!')
 

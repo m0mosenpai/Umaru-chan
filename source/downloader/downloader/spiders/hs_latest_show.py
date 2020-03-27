@@ -22,8 +22,9 @@ class HSlatestShow(scrapy.Spider):
 		# 	#print(show)
 		# 	links.append(response.xpath('//a[@title="'+ show +'"]/@href').extract())
 
-		with open("../../data/watchlist.txt", 'r') as file:
-			watchlist = file.read().split('\n')
+		with open("../../data/config.json", 'r+') as f:
+			config = json.load(f)
+			watchlist = config['watchlist']
 
 		for show in watchlist:
 			# print(links[0][0])

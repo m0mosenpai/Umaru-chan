@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-import data.secrets as secrets
 from time import sleep
+import json
 import sys
 import fuzzyset
 
@@ -19,25 +19,25 @@ class animelist():
 		print('command_executor: ' + self.driver.command_executor._url)
 		print('session_id: ' + self.driver.session_id)
 
-	def login(self):
+	def login(self, _id, _pass):
 		self.driver.get("https://myanimelist.net/login.php?")
 		sleep(5)
 
 		email = self.driver.find_element_by_xpath("""//*[@id="loginUserName"]""")
-		email.send_keys(secrets._id)
+		email.send_keys(_id)
 
 		password = self.driver.find_element_by_xpath("""//*[@id="login-password"]""")
-		password.send_keys(secrets._pass)
+		password.send_keys(_pass)
 
 		sleep(2)
 
 		btn = self.driver.find_element_by_xpath("""//*[@id="dialog"]/tbody/tr/td/form/div/p[6]/input""")
 		btn.click()
 
-	def gotoanime(self, animename):
+	def gotoanime(self, animename, _id):
 		#f.get(animename)
 		try:
-			self.driver.get('https://myanimelist.net/animelist/{}?status=1&tag='.format(secrets._id))
+			self.driver.get('https://myanimelist.net/animelist/{}?status=1&tag='.format(_id))
 		except Exception:
 			pass
 		sleep(2)
@@ -76,11 +76,15 @@ class animelist():
 #animename = arglist[1]
 animename = 'Ahiru no Sora'
 
-#Check if secrete.py contains login credentials
-if secrets._id != '' and secrets._pass !='':
+with open('data/config.json', 'r+'):
+	config = json.load(f)
+	user = config['main']['username']
+	passwd = config['main']['password']
+
+if  user != "" and passwd != "":
 	bot = animelist()
-	bot.login()
-	bot.gotoanime(animename)
+	bot.login(user, passwd)
+	bot.gotoanime(animename, user)
 	bot.updateanime()
 else:
 	print("\033[91mMAL Login ID not set. Run client with '--mal-id <username> <password>' to set one up!\033[0m")

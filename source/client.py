@@ -4,10 +4,11 @@ import os
 import sys
 import subprocess
 import argparse
-import pickle
+import json
 
 BUFFSIZE = 2048
 
+#Shows the status
 def status(s):
 	while True:
 		#Send ping request to show status
@@ -20,19 +21,8 @@ def status(s):
 		except socket.timeout:
 			break
 
-def watchlist(s):
-	while True:
-		#Send ping request to show watchlist
-		watchlist_ping = "show-watchlist".encode('utf-8')
-		s.send(watchlist_ping)
 
-		try:
-			msg = s.recv(BUFFSIZE) 
-			watchlist = pickle.loads(msg)
-			print("Your Watchlist:\n {}".format(watchlist))
-		except socket.timeout:
-			break
-
+#Refreshed database
 def refresh(s):
 	s.settimeout(5)
 	while True:
@@ -46,20 +36,55 @@ def refresh(s):
 		except socket.timeout:
 			break
 
+#Prints out the watchlist
+def watchlist():
+	with open('data/config.json', 'r+') as f:
+		config = json.load(f)
+		watchlist = config['watchlist']
+
+	if not watchlist:
+		print("\033[91mYour Watchlist is empty! Add shows using -a/--add <name>!\033[0m")
+	else:
+		print("\033[92mYour Watchlist:\033[0m")
+		for show in watchlist:
+			print(show)
+
+#Add shows to watchlist
+def addShows(showlist):
+	with open("data/config.json", "r+") as f:
+		config = json.load(f)
+		for show in showlist:
+			print(show)
+			config['watchlist'].append(show)
+		f.seek(0)
+		json.dump(config, f, indent=4)
+
+	print("\033[92mShows added succesfully!\033[0m")
+
+#Sets download path
 def setPATH(PATH):
-	with open("data/path.txt", "w+") as path:
-		path.write(PATH)
+	with open("data/config.json", 'r+') as f:
+		config = json.load(f)
+		config['main']['path'] = PATH
+		f.seek(0)
+		json.dump(config, f, indent=4)
+	
 	print("\033[92mDefault download directory set!\033[0m")
 
+#Sets login id and password for MAL account
 def setMAL(username, password):
-	#Send login credentials to server by prepending login header
-	with open("data/secrets.py", 'w') as secrets:
-		secrets.write("_id = \"{}\"\n".format(username))
-		secrets.write("_pass = \"{}\"\n".format(password))
+	with open("data/config.json", "r+") as f:
+		config = json.load(f)
+		config['main']['username'] = username
+		config['main']['password'] = password
+		f.seek(0)
+		json.dump(config, f, indent=4)
+	
 	print("\033[92mMAL Login ID set! Check secret.py.\033[0m")
 	print("\033[92mAuto list-updation is on. Don't forget to add anime to your 'Watching' list on MAL!\033[0m")
 
 parser = argparse.ArgumentParser(description="Command-line interface for Umaru-chan.")
+parser.add_argument('-a', '--add', nargs='+', help="Adds shows to the watchlist", metavar=("NAME"))
 parser.add_argument('-s', '--status', help="Displays current status.",action='store_true')
 parser.add_argument('-l', '--list', help="Displays current set watchlist.", action='store_true')
 parser.add_argument('-m', '--mal-id', nargs=2, help="Sets username and password of MyAnimeList account.")
@@ -74,6 +99,10 @@ elif args.path != None:
 	setPATH(args.path[0])
 elif args.mal_id != None:
 	setMAL(args.mal_id[0], args.mal_id[1])
+elif args.add != None:
+	addShows(args.add)
+elif args.list:
+	watchlist()
 else:
 	try:
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -82,8 +111,6 @@ else:
 
 		if args.status:
 			status(s)
-		elif args.list:
-			watchlist(s)
 		elif args.refresh:
 			refresh(s)
 		else:
