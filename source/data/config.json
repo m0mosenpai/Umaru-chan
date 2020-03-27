@@ -4,18 +4,8 @@
         "username": "butterMiner",
         "password": "Test#123"
     },
-    "watchlist": [
-        "ahiru no sora",
-        "boku no hero academia",
-        "oregiaru",
-        "haikyuu",
-        "haikyuu./client.py -a haikyuu!",
-        "haikyuu\\!\\!\\!",
-        "haikyuu*",
-        "haikyuu***",
-        "haikyuu*************",
-        "haikyuu\\!./client.py -a haikyuu*************",
-        "haikyuu\\!\\!!",
-        "haikyuu\\!\\!!"
-    ]
+    "watchlist": {
+        "Ahiru no Sora": "4",
+        "Darwin's Game": "3"
+    }
 }

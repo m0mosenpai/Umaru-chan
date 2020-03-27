@@ -139,12 +139,8 @@ def getListOfNewEps():
 
 	return latestnum
 
-def initializeld(watchlist):
-	ld = {}
-	for show in watchlist:
-		ld[show] = 0
-
-	return ld
+def getShowsToDown(new_ep_num, f_watchlist):
+	{"Ahiru no Sora": [1, 2, 3], ""}
 
 #Main process - runs forever once started	
 interval = 30 #in seconds
@@ -159,6 +155,8 @@ while True:
 		should_check = False
 		data = getShows()
 		watchlist = getWatchlist()
+		nums = list(watchlist.values())
+		shows = watchlist.keys()
 		print('Watchlist as entered by the baka user: {}'.format(watchlist))
 		#Loop through the watchlist
 		season_fset = fuzzyset.FuzzySet()
@@ -167,24 +165,26 @@ while True:
 			season_fset.add(show)
 
 		#Get actual watchlist (Names according to hs)
-		f_watchlist = []
+		f_watchlist = {}
 
-		for show in watchlist:
+		i = 0
+		for show in shows:
 			# print(type(season_fset.get(show)))
-			f_watchlist.append(season_fset.get(show)[0][1])
+			f_watchlist[season_fset.get(show)[0][1]] = nums[i]
+			i += 1
 
 		print('Correct watchlist: {}'.format(f_watchlist))
 
 		with open('data/config.json', 'r+') as f:
 			config = json.load(f)
-			config['watchlist'] = f_watchlist
+			config['watchlist']= f_watchlist
 			f.seek(0)
-			json.dump(config, f)
+			json.dump(config, f, indent=4)
 
 		print('Updated!')
 
 		#last ep downloaded data
-		last_down = initializeld(watchlist)
+		#last_down
 		# if os.path.exists('data/last_down.json') is False:
 		# 	with open('data/last_down.json', 'w') as f:
 		# 		json.dump(last_down, f)
@@ -194,10 +194,10 @@ while True:
 		#print(getListOfNewEps())
 		#Download if new ep is found
 		new_ep_num = getListOfNewEps() #This function will return the latest ep no. of all shows in watchlist
-		#shows_download = getShowsToDown(new_ep_num, last_down) #Compare and find which shows to download
+		#shows_download = getShowsToDown(new_ep_num, f_watchlist) #Compare and find which shows to download
 		#downloadShows(shows_download)
 
-		print(last_down)
+		#print(new_ep_num)
 
 	now = time.monotonic()
 	if (now - start > interval):

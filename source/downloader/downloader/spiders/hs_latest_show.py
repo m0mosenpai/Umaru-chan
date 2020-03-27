@@ -3,12 +3,14 @@ import json
 
 links = []
 latest_num = {}
+watchlist = {}
 
 class HSlatestShow(scrapy.Spider):
 	name = 'hslatest'
 	start_urls = ["https://nyaa.si/"]
 
 	def parse(self, response):
+		global watchlist
 		# data = {}
 		# season_shows = []
 		# global links
@@ -21,6 +23,7 @@ class HSlatestShow(scrapy.Spider):
 		# for show in season_shows:
 		# 	#print(show)
 		# 	links.append(response.xpath('//a[@title="'+ show +'"]/@href').extract())
+		pageno = 1
 
 		with open("../../data/config.json", 'r+') as f:
 			config = json.load(f)
@@ -35,6 +38,9 @@ class HSlatestShow(scrapy.Spider):
 			show = nyaa + name + "+1080p"
 			yield scrapy.Request(show, callback = self.parse_show)
 
+		#download eps
+
+
 	def parse_show(self, response):
 		global latest_num
 		latest_ep = response.xpath('//tr/td[@colspan="2"]/a/@title').extract()[1]
@@ -42,6 +48,12 @@ class HSlatestShow(scrapy.Spider):
 		#print(magnet_link)
 		aname = (latest_ep[latest_ep.index('] '):latest_ep.index(' -')][2:])
 		epno = (latest_ep[latest_ep.index('- '):latest_ep.index(' [')][2:])
+
+		currentep = watchlist[aname]
+		for currentep in range(int(epno) + 1):
+			magenet = response.xpath('//a[contains(text(), "' + currentep +'")]/../following-sibling::td[1]/a/@href').extract()[1]
+			
+
 		latest_num[aname] = epno
 		#dump
 		with open("../../data/latestnum.json", 'w') as f:

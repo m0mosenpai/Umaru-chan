@@ -55,7 +55,7 @@ def addShows(showlist):
 		config = json.load(f)
 		for show in showlist:
 			print(show)
-			config['watchlist'].append(show)
+			config['watchlist'][show] = "0"
 		f.seek(0)
 		json.dump(config, f, indent=4)
 
