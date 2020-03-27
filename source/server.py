@@ -129,18 +129,12 @@ def sendResponse():
 	except KeyboardInterrupt:
 		print("\n\033[91mKeyboard Interrupt Detected!\033[0m")
 
-def getListOfNewEps():
+def checkNewAndDownload():
 	with cd("downloader/downloader"):
 		output = subprocess.run(["scrapy", "crawl", "hslatest", "--nolog"])
 
-	latestnum = {}
-	with open('data/latestnum.json', 'r') as f:
-		latestnum = json.load(f)
-
-	return latestnum
-
 #Main process - runs forever once started	
-interval = 30 #in seconds
+interval = 6000 #in seconds
 should_check = True
 while True:
 	if should_check is True:
@@ -148,13 +142,13 @@ while True:
 
 	#Run below every 10 mins
 	if (should_check):
-		print("PRINT!")
+		#print("PRINT!")
 		should_check = False
 		data = getShows()
 		watchlist = getWatchlist()
 		nums = list(watchlist.values())
 		shows = watchlist.keys()
-		print('Watchlist as entered by the baka user: {}'.format(watchlist))
+		#print('Watchlist as entered by the baka user: {}'.format(watchlist))
 		#Loop through the watchlist
 		season_fset = fuzzyset.FuzzySet()
 		#Add all shows in current season to fuzzy set
@@ -170,7 +164,7 @@ while True:
 			f_watchlist[season_fset.get(show)[0][1]] = nums[i]
 			i += 1
 
-		print('Correct watchlist: {}'.format(f_watchlist))
+		#print('Correct watchlist: {}'.format(f_watchlist))
 
 		with open('data/config.json', 'r+') as f:
 			config = json.load(f)
@@ -178,7 +172,9 @@ while True:
 			f.seek(0)
 			json.dump(config, f, indent=4)
 
-		print('Updated!')
+		local_datetime = datetime.datetime.now()
+		local_time =  local_datetime.ctime().split()[3]
+		print('Server is running! [{}]'.format(local_time))
 
 		#last ep downloaded data
 		#last_down
@@ -190,7 +186,7 @@ while True:
 
 		#print(getListOfNewEps())
 		#Download if new ep is found
-		new_ep_num = getListOfNewEps() #This function will return the latest ep no. of all shows in watchlist
+		checkNewAndDownload() #This function will return the latest ep no. of all shows in watchlist
 		#shows_download = getShowsToDown(new_ep_num, f_watchlist) #Compare and find which shows to download
 		#downloadShows(shows_download)
 
