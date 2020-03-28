@@ -66,7 +66,7 @@ def main():
 		PATH = config['main']['path']
 	#Exits if path not set	
 	if PATH == "":
-		print("\033[91mDownload directory not set. Run with -p/--path <PATH> to set one up!\033[0m")
+		print("\033[91mAnime Library not set. Run with -p/--path <PATH> to set one up!\033[0m")
 		exit()
 
 	createFileList(PATH)

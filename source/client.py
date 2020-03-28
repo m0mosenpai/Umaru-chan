@@ -77,11 +77,10 @@ def addShows(showlist):
 		config = json.load(f)
 		for show in showlist:
 			#Takes show name from the argument before the ":" and the latest ep number after the ":"
-			try:
+			if show.find(":") == -1:
+				config['watchlist'][show] = '0'
+			else:
 				config['watchlist'][show[:show.index(":")]] = show[(show.index(":")+1):]
-			except:
-				print("\033[91mERROR! Enter the last episode watched after the name of the anime separated by a :\033[0m")
-				return
 		f.seek(0)
 		json.dump(config, f, indent=4)
 
@@ -106,7 +105,7 @@ def deleteShows(numlist):
 #Clears Config
 def clearConfig():
 	#Defining default config
-	def_config = {"main":{"path":"","username":"","password":""},"watchlist":{}}
+	def_config = {"main":{"path":"","torrent":"","username":"","password":""},"watchlist":{}}
 	with open("data/config.json", "w") as f:
 		json.dump(def_config, f, indent=4)
 
@@ -122,7 +121,7 @@ def clearList():
 
 	print("\033[92mYour watchlist has been reset. Use -a/--add to add shows!\033[91m")
 
-#Sets download path
+#Sets watch/anime library path
 def setPATH(PATH):
 	with open("data/config.json", 'r+') as f:
 		config = json.load(f)
@@ -130,7 +129,17 @@ def setPATH(PATH):
 		f.seek(0)
 		json.dump(config, f, indent=4)
 	
-	print("\033[92mDefault download directory set!\033[0m")
+	print("\033[92mDefault anime watching directory set!\033[0m")
+
+#Sets path for downloading torrent files
+def setTorrentPATH(PATH):
+	with open("data/config.json", 'r+') as f:
+		config = json.load(f)
+		config['main']['torrent'] = PATH
+		f.seek(0)
+		json.dump(config, f, indent=4)
+	
+	print("\033[92mDefault download directory for torrent files set!\033[0m")
 
 #Sets login id and password for MAL account
 def setMAL(username, password):
@@ -151,7 +160,8 @@ parser.add_argument('-l', '--list', help="Displays current set watchlist.", acti
 parser.add_argument('-cc', '--clr-config', help="Clears config", action='store_true')
 parser.add_argument('-cl', '--clr-list', help="Clears watchlist", action='store_true')
 parser.add_argument('-w', '--watch', help="Watch anime.", action='store_true')
-parser.add_argument('-p', '--path', nargs=1, help="Sets default download directory.", metavar=("PATH"))
+parser.add_argument('-p', '--path', nargs=1, help="Sets default watch directory/anime library.", metavar=("PATH"))
+parser.add_argument('-t', '--torrent', nargs=1, help="Sets default download directory for torrent files.", metavar=("DIR"))
 parser.add_argument('-m', '--mal-id', nargs=2, help="Sets username and password of MyAnimeList account.")
 parser.add_argument('-s', '--status', help="Displays current status.",action='store_true')
 parser.add_argument('-r', '--refresh', help="Refreshes database.", action='store_true')
@@ -162,6 +172,8 @@ try:
 		exec(open('watch.py').read())
 	elif args.path != None:
 		setPATH(args.path[0])
+	elif args.torrent != None:
+		setTorrentPATH(args.torrent[0])
 	elif args.mal_id != None:
 		setMAL(args.mal_id[0], args.mal_id[1])
 	elif args.add != None:

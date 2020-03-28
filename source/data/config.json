@@ -1,13 +1,13 @@
 {
     "main": {
-        "path": "D:\\Downloads\\",
+        "path": "/media/bitlockermount/Users/sarth/Documents/Anime/",
+        "torrent": "/home/momo/Documents/Torrents/",
         "username": "butterMiner",
         "password": "Test#123"
     },
     "watchlist": {
-        "Ahiru no Sora": "24",
-        "Darwin's Game": "11",
-        "Haikyuu!! S4": "12",
-        "Rikei ga Koi ni Ochita no de Shoumei shitemita": "12"
+        "boku no hero academia": "25",
+        "ahiru no sora": "0",
+        "oregairu": "24"
     }
 }
