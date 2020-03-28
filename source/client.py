@@ -9,35 +9,57 @@ import json
 BUFFSIZE = 2048
 
 #Shows the status
-def status(s):
-	while True:
-		#Send ping request to show status
-		status_ping = "send-status".encode('utf-8')
-		s.send(status_ping)
+def status():
+	global BUFFSIZE
+	try:
+		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		s.connect((socket.gethostname(), 6969))
+		s.settimeout(2)
 
-		try:
-			msg = s.recv(BUFFSIZE).decode('utf-8')
-			print(msg, end='')
-		except socket.timeout:
-			break
+		while True:
+			#Send ping request to show status
+			status_ping = "send-status".encode('utf-8')
+			s.send(status_ping)
 
+			try:
+				msg = s.recv(BUFFSIZE).decode('utf-8')
+				print(msg, end='')
+			except socket.timeout:
+				break
+
+	except socket.error:
+		print("\033[91mConnection Error!\033[0m")
+
+	finally:
+		s.close()
 
 #Refreshed database
-def refresh(s):
-	s.settimeout(5)
-	while True:
-		#Send ping request to refresh watchlist
-		refresh_ping = "refresh".encode('utf-8')
-		s.send(refresh_ping)
+def refresh():
+	global BUFFSIZE
+	try:
+		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		s.connect((socket.gethostname(), 6969))
+		s.settimeout(5)
 
-		try:
-			msg = s.recv(BUFFSIZE).decode('utf-8')
-			print(msg, end='')
-		except socket.timeout:
-			break
+		while True:
+			#Send ping request to refresh watchlist
+			refresh_ping = "refresh".encode('utf-8')
+			s.send(refresh_ping)
+
+			try:
+				msg = s.recv(BUFFSIZE).decode('utf-8')
+				print(msg, end='')
+			except socket.timeout:
+				break
+
+	except socket.error:
+		print("\033[91mConnection Error!\033[0m")
+
+	finally:
+		s.close()
 
 #Prints out the watchlist
-def watchlist():
+def showList():
 	with open('data/config.json', 'r+') as f:
 		config = json.load(f)
 		watchlist = config['watchlist']
@@ -46,20 +68,59 @@ def watchlist():
 		print("\033[91mYour Watchlist is empty! Add shows using -a/--add <name>!\033[0m")
 	else:
 		print("\033[92mYour Watchlist:\033[0m")
-		for show in watchlist:
-			print(show)
+		for i,show in enumerate(watchlist):
+			print("{}:\033[93m {}\033[0m".format(i, show))
 
 #Add shows to watchlist
 def addShows(showlist):
 	with open("data/config.json", "r+") as f:
 		config = json.load(f)
 		for show in showlist:
-			print(show)
-			config['watchlist'][show] = "0"
+			#Takes show name from the argument before the ":" and the latest ep number after the ":"
+			try:
+				config['watchlist'][show[:show.index(":")]] = show[(show.index(":")+1):]
+			except:
+				print("\033[91mERROR! Enter the last episode watched after the name of the anime separated by a :\033[0m")
+				return
 		f.seek(0)
 		json.dump(config, f, indent=4)
 
-	print("\033[92mShows added succesfully!\033[0m")
+	print("\033[92mShows added succesfully! Use -l/--list to see your watchlist.\033[0m")
+
+#Deletes selected show from watchlist
+def deleteShows(numlist):
+	with open("data/config.json", "r+") as f:
+		config = json.load(f)
+	if not config['watchlist']:
+		print("\033[91mYour Watchlist is empty! Add shows using -a/--add <name>!\033[0m")
+	else:
+		keylist = list(config['watchlist'].keys())
+		for i in numlist:
+			print("\033[93m{}\033[0m".format(keylist[int(i)]))
+			del config['watchlist'][keylist[int(i)]]
+		with open("data/config.json", "w") as f:	
+			json.dump(config, f, indent=4)
+
+		print("The following shows have been deleted from the watchlist")
+
+#Clears Config
+def clearConfig():
+	#Defining default config
+	def_config = {"main":{"path":"","username":"","password":""},"watchlist":{}}
+	with open("data/config.json", "w") as f:
+		json.dump(def_config, f, indent=4)
+
+	print("\033[92mConfig has been reset.\033[91m")
+
+#Clears watchlist
+def clearList():
+	with open("data/config.json", "r+") as f:
+		config = json.load(f)
+		def_list = {"main":config['main'],"watchlist":{}}
+	with open("data/config.json", "w") as f:
+		json.dump(def_list, f, indent=4)
+
+	print("\033[92mYour watchlist has been reset. Use -a/--add to add shows!\033[91m")
 
 #Sets download path
 def setPATH(PATH):
@@ -85,43 +146,41 @@ def setMAL(username, password):
 
 parser = argparse.ArgumentParser(description="Command-line interface for Umaru-chan.")
 parser.add_argument('-a', '--add', nargs='+', help="Adds shows to the watchlist", metavar=("NAME"))
-parser.add_argument('-s', '--status', help="Displays current status.",action='store_true')
+parser.add_argument('-d', '--delete', nargs='+', help="Removes one or more shows from the watchlist", metavar=("No."))
 parser.add_argument('-l', '--list', help="Displays current set watchlist.", action='store_true')
-parser.add_argument('-m', '--mal-id', nargs=2, help="Sets username and password of MyAnimeList account.")
-parser.add_argument('-r', '--refresh', help="Refreshes database.", action='store_true')
-parser.add_argument('-p', '--path', nargs=1, help="Sets default download directory.", metavar=("PATH"))
+parser.add_argument('-cc', '--clr-config', help="Clears config", action='store_true')
+parser.add_argument('-cl', '--clr-list', help="Clears watchlist", action='store_true')
 parser.add_argument('-w', '--watch', help="Watch anime.", action='store_true')
+parser.add_argument('-p', '--path', nargs=1, help="Sets default download directory.", metavar=("PATH"))
+parser.add_argument('-m', '--mal-id', nargs=2, help="Sets username and password of MyAnimeList account.")
+parser.add_argument('-s', '--status', help="Displays current status.",action='store_true')
+parser.add_argument('-r', '--refresh', help="Refreshes database.", action='store_true')
 args = parser.parse_args()
 
-if args.watch:
-	exec(open('watch.py').read())
-elif args.path != None:
-	setPATH(args.path[0])
-elif args.mal_id != None:
-	setMAL(args.mal_id[0], args.mal_id[1])
-elif args.add != None:
-	addShows(args.add)
-elif args.list:
-	watchlist()
-else:
-	try:
-		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		s.connect((socket.gethostname(), 6969))
-		s.settimeout(2)
+try:
+	if args.watch:
+		exec(open('watch.py').read())
+	elif args.path != None:
+		setPATH(args.path[0])
+	elif args.mal_id != None:
+		setMAL(args.mal_id[0], args.mal_id[1])
+	elif args.add != None:
+		addShows(args.add)
+	elif args.delete != None:
+		deleteShows(args.delete)
+	elif args.list:
+		showList()
+	elif args.clr_config:
+		clearConfig()
+	elif args.clr_list:
+		clearList()
+	elif args.status:
+		status()
+	elif args.refresh:
+		refresh()
+	else:
+		print("\033[91mAtleast one argument is required!\033[0m")
+		parser.print_help()
 
-		if args.status:
-			status(s)
-		elif args.refresh:
-			refresh(s)
-		else:
-			print("\033[91mAtleast one argument is required!\033[0m")
-			parser.print_help()
-
-	except KeyboardInterrupt:
-		print("\n\033[91mKeyboard Interrupt Detected!\033[0m")
-
-	except socket.error:
-		print("\033[91mConnection Error!\033[0m")
-
-	finally:
-		s.close()
+except KeyboardInterrupt:
+	print("\n\033[91mKeyboard Interrupt Detected!\033[0m")
