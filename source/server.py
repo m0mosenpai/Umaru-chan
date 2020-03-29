@@ -160,7 +160,6 @@ while True:
 			f_watchlist[season_fset.get(show)[0][1]] = nums[i]
 			i += 1
 
-<<<<<<< HEAD
 		#print('Correct watchlist: {}'.format(f_watchlist))
 
 		config = {}
@@ -168,25 +167,15 @@ while True:
 			config = json.load(f)
 			config['watchlist']= f_watchlist
 
-=======
-		with open('data/config.json', 'r+') as f:
-			config = json.load(f)
-		config['watchlist']= f_watchlist
->>>>>>> d92f27df3fd586dc64cc5d68cee076e354c3c734
 		with open('data/config.json', 'w') as f:
 			json.dump(config, f, indent=4)
 
 		local_datetime = datetime.datetime.now()
 		local_time =  local_datetime.ctime().split()[3]
 		print('Server is running! [{}]'.format(local_time))
-<<<<<<< HEAD
 
 		if len(config["main"]["path"]) != 0 and len(config["main"]["torrent"]) != 0:
 			checkNewAndDownload()
-=======
-		checkNewAndDownload()
-		
->>>>>>> d92f27df3fd586dc64cc5d68cee076e354c3c734
 
 	now = time.monotonic()
 	if (now - start > interval):
