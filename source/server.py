@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import select
 import socket
 import os
 import datetime
@@ -80,54 +81,49 @@ def sendResponse():
 	s.bind((socket.gethostname(), 6969))
 	s.listen(5)
 
-	try:
-		while True:
-			#Local time
-			local_datetime = datetime.datetime.now()
-			local_time =  local_datetime.ctime().split()[3]
+	#Local time
+	local_datetime = datetime.datetime.now()
+	local_time =  local_datetime.ctime().split()[3]
 
-			clientsocket, address = s.accept()
-			#Connection history is stored in log file
-			with open("data/LogFile.txt", "a") as log:
-				log.write("{} connected! on {} \n".format(address, local_datetime))
-			
-			client_msg = clientsocket.recv(BUFFSIZE).decode('utf-8')
+	readable, writable, errored = select.select([s], [], [], 2)
 
-			#If send-status ping is received, IST and PDT is sent along with activity status
-			if client_msg == "send-status":
-				time = "Local Time: {}	PDT: {} \n".format(local_time, getPDT())
-				clientsocket.send(bytes(time, 'utf-8'))
-				if LAST_REFRESH != "":
-					clientsocket.send(bytes("Last Refresh: {} \n".format(LAST_REFRESH), 'utf-8'))
+	print("Checking for connection from client")
+	if s in readable:
+		clientsocket, address = s.accept()
+		print("Connected to a client")
+		#Connection history is stored in log file
+		with open("data/LogFile.txt", "a") as log:
+			log.write("{} connected! on {} \n".format(address, local_datetime))
+		
+		client_msg = clientsocket.recv(BUFFSIZE).decode('utf-8')
 
-				if ACTIVE == True:
-					clientsocket.send(bytes("Umaru-chan is working hard! \n", 'utf-8'))
-				else:
-					clientsocket.send(bytes("All done for the day! \n", 'utf-8'))
+		#If send-status ping is received, IST and PDT is sent along with activity status
+		if client_msg == "send-status":
+			time = "Local Time: {}	PDT: {} \n".format(local_time, getPDT())
+			clientsocket.send(bytes(time, 'utf-8'))
+			if LAST_REFRESH != "":
+				clientsocket.send(bytes("Last Refresh: {} \n".format(LAST_REFRESH), 'utf-8'))
 
-			#If a refresh ping is received, database is refreshed by calling scrapy	
-			elif client_msg == "refresh":
-				if os.path.exists("data/data.json"):
-					#Remove current data.json
-					os.remove("data/data.json")
-
-				#Change to scrapy directory
-				with cd("downloader/downloader"):
-					#Runs scrapy; remove the --nolog option to see logs in server.py output
-					subprocess.run(["scrapy", "crawl", "anime", "-o", "../../data/data.json", "--nolog"])
-
-				LAST_REFRESH = local_datetime.ctime()	
-				clientsocket.send(bytes("\033[92mDatabase refreshed successfully!\033[0m\n", 'utf-8'))
-
-			#If no incoming message, close socket and break	
+			if ACTIVE == True:
+				clientsocket.send(bytes("Umaru-chan is working hard! \n", 'utf-8'))
 			else:
-				break
+				clientsocket.send(bytes("All done for the day! \n", 'utf-8'))
 
-	# except socket.error:
-	# 	print("Socket error detected!")
+		#If a refresh ping is received, database is refreshed by calling scrapy	
+		elif client_msg == "refresh":
+			if os.path.exists("data/data.json"):
+				#Remove current data.json
+				os.remove("data/data.json")
 
-	except KeyboardInterrupt:
-		print("\n\033[91mKeyboard Interrupt Detected!\033[0m")
+			#Change to scrapy directory
+			with cd("downloader/downloader"):
+				#Runs scrapy; remove the --nolog option to see logs in server.py output
+				subprocess.run(["scrapy", "crawl", "anime", "-o", "../../data/data.json", "--nolog"])
+
+			LAST_REFRESH = local_datetime.ctime()	
+			clientsocket.send(bytes("\033[92mDatabase refreshed successfully!\033[0m\n", 'utf-8'))
+
+	s.close()
 
 def checkNewAndDownload():
 	with cd("downloader/downloader"):
@@ -139,6 +135,9 @@ should_check = True
 while True:
 	if should_check is True:
 		start = time.monotonic()
+
+	sendResponse()
+	print("sendResponse Over!")
 
 	#Run below every 10 mins
 	if (should_check):
@@ -166,36 +165,21 @@ while True:
 
 		#print('Correct watchlist: {}'.format(f_watchlist))
 
-		with open('data/config.json', 'r+') as f:
+		config = {}
+		with open('data/config.json', 'r') as f:
 			config = json.load(f)
 			config['watchlist']= f_watchlist
-			f.seek(0)
+
+		with open('data/config.json', 'w') as f:
 			json.dump(config, f, indent=4)
 
 		local_datetime = datetime.datetime.now()
 		local_time =  local_datetime.ctime().split()[3]
 		print('Server is running! [{}]'.format(local_time))
 
-		#last ep downloaded data
-		#last_down
-		# if os.path.exists('data/last_down.json') is False:
-		# 	with open('data/last_down.json', 'w') as f:
-		# 		json.dump(last_down, f)
-		# with open('data/last_down.json', 'r') as f:
-		# 	last_down = json.load(f)
-
-		#print(getListOfNewEps())
-		#Download if new ep is found
-		checkNewAndDownload() #This function will return the latest ep no. of all shows in watchlist
-		#shows_download = getShowsToDown(new_ep_num, f_watchlist) #Compare and find which shows to download
-		#downloadShows(shows_download)
-
-		#print(new_ep_num)
+		if len(config["main"]["path"]) != 0 and len(config["main"]["torrent"]) != 0:
+			checkNewAndDownload()
 
 	now = time.monotonic()
 	if (now - start > interval):
 		should_check = True
-
-	#break
-	
-	#sendResponse()
