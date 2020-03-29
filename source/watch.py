@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
+from time import sleep
 import os
+import platform
 import subprocess
 import re
 import json
@@ -33,11 +35,14 @@ def createFileList(PATH):
 		filename = filedict[choice]
 		#Check if chosen file is a regular file or a directory
 		if os.path.isfile(filename):
-			#Runs the file in vlc is it's a regular file
-			print(filename)
-			print("Opening file in VLC..")
-			#Errors are piped to /dev/null
-			subprocess.run(["vlc", filename], stderr=subprocess.DEVNULL)
+			print("Opening file in default program..")
+			if platform.system() == 'Windows':
+				os.startfile(filename)
+			elif platform.system() == 'Linux':
+				subprocess.run(['xdg-open', filename], stderr=subprocess.DEVNULL)
+			else:
+				print("\033[91mUnsupported Platform!\033[0m")
+				return
 		elif os.path.isdir(filename):
 			#If it's a directory, lists all files in it by recursively calling createFileList
 			createFileList(filename)
@@ -45,6 +50,7 @@ def createFileList(PATH):
 			#Else, invalid file type.
 			print("\033[91mInvalid file/directory.\033[0m")
 	
+	sleep(2)
 	choice = input("Do you want to update episode count on MAL? (y/n): ")
 	if choice == 'y':
 		updateMAL(filename)
