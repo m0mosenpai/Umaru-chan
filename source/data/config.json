@@ -1,7 +1,7 @@
 {
     "main": {
-        "path": "/media/bitlockermount/Users/sarth/Documents/Anime/",
-        "torrent": "/home/momo/Documents/Torrents/",
+        "path": "D:/Anime/",
+        "torrent": "D:/Downloads/",
         "username": "butterMiner",
         "password": "Test#123"
     },

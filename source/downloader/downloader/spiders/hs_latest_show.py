@@ -52,7 +52,7 @@ class HSlatestShow(scrapy.Spider):
 		#print(magnet_link)
 		aname = (latest_ep[latest_ep.index('] '):latest_ep.index(' -')][2:])
 		epno = (latest_ep[latest_ep.index('- '):latest_ep.index(' [')][2:])
-
+		print("Checking new episode for {}".format(aname))
 		#print("Latest episode of {} is {}".format(aname, epno))
 
 		currentep = int(watchlist[aname])
