@@ -110,7 +110,7 @@ def deleteShows(numlist):
 #Clears Config
 def clearConfig():
 	#Defining default config
-	def_config = {"main":{"path":"","torrent":"","username":"","password":""},"watchlist":{}}
+	def_config = {"main":{"path":"","torrent":"","quality":"","username":"","password":""},"watchlist":{}}
 	with open("data/config.json", "w") as f:
 		json.dump(def_config, f, indent=4)
 
@@ -143,6 +143,15 @@ def setTorrentPATH(PATH):
 	
 	print("\033[92mDefault download directory for torrent files set!\033[0m")
 
+#Sets quality for downloads
+def setQuality(Q):
+	config = readConfig()
+	config['main']['quality'] = Q
+	with open('data/config.json', 'w') as f:
+		json.dump(config, f, indent=4)
+
+	print("\033[92mQuality of downloads set to\033[0m \033[95m{}\033[0m".format(Q))
+
 #Sets login id and password for MAL account
 def setMAL(username, password):
 	config = readConfig()
@@ -163,6 +172,7 @@ parser.add_argument('-cl', '--clr-list', help="Clears watchlist", action='store_
 parser.add_argument('-w', '--watch', help="Watch anime.", action='store_true')
 parser.add_argument('-p', '--path', nargs=1, help="Sets default watch directory/anime library.", metavar=("PATH"))
 parser.add_argument('-t', '--torrent', nargs=1, help="Sets default download directory for torrent files.", metavar=("DIR"))
+parser.add_argument('-q', '--quality', nargs=1, help="Sets quality of downloads (720p/1080p)", metavar=("QUAL"))
 parser.add_argument('-m', '--mal-id', nargs=2, help="Sets username and password of MyAnimeList account.")
 parser.add_argument('-s', '--status', help="Displays current status.",action='store_true')
 parser.add_argument('-r', '--refresh', help="Refreshes database.", action='store_true')
@@ -175,6 +185,8 @@ try:
 		setPATH(args.path[0])
 	elif args.torrent != None:
 		setTorrentPATH(args.torrent[0])
+	elif args.quality != None:
+		setQuality(args.quality[0])
 	elif args.mal_id != None:
 		setMAL(args.mal_id[0], args.mal_id[1])
 	elif args.add != None:

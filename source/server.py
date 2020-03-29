@@ -134,7 +134,7 @@ def checkNewAndDownload():
 		output = subprocess.run(["scrapy", "crawl", "hslatest", "--nolog"])
 
 #Main process - runs forever once started	
-interval = 600 #in seconds
+interval = 10 #in seconds
 should_check = True
 while True:
 	if should_check is True:
@@ -142,14 +142,11 @@ while True:
 
 	#Run below every 10 mins
 	if (should_check):
-		#print("PRINT!")
 		should_check = False
 		data = getShows()
 		watchlist = getWatchlist()
 		nums = list(watchlist.values())
 		shows = watchlist.keys()
-		#print('Watchlist as entered by the baka user: {}'.format(watchlist))
-		#Loop through the watchlist
 		season_fset = fuzzyset.FuzzySet()
 		#Add all shows in current season to fuzzy set
 		for show in data["current_season"]:
@@ -164,33 +161,17 @@ while True:
 			f_watchlist[season_fset.get(show)[0][1]] = nums[i]
 			i += 1
 
-		#print('Correct watchlist: {}'.format(f_watchlist))
-
 		with open('data/config.json', 'r+') as f:
 			config = json.load(f)
-			config['watchlist']= f_watchlist
-			f.seek(0)
+		config['watchlist']= f_watchlist
+		with open('data/config.json', 'w') as f:
 			json.dump(config, f, indent=4)
 
 		local_datetime = datetime.datetime.now()
 		local_time =  local_datetime.ctime().split()[3]
 		print('Server is running! [{}]'.format(local_time))
-
-		#last ep downloaded data
-		#last_down
-		# if os.path.exists('data/last_down.json') is False:
-		# 	with open('data/last_down.json', 'w') as f:
-		# 		json.dump(last_down, f)
-		# with open('data/last_down.json', 'r') as f:
-		# 	last_down = json.load(f)
-
-		#print(getListOfNewEps())
-		#Download if new ep is found
-		checkNewAndDownload() #This function will return the latest ep no. of all shows in watchlist
-		#shows_download = getShowsToDown(new_ep_num, f_watchlist) #Compare and find which shows to download
-		#downloadShows(shows_download)
-
-		#print(new_ep_num)
+		checkNewAndDownload()
+		
 
 	now = time.monotonic()
 	if (now - start > interval):

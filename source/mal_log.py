@@ -76,15 +76,14 @@ class animelist():
 #animename = arglist[1]
 animename = 'Ahiru no Sora'
 
-with open('data/config.json', 'r+'):
+with open('data/config.json', 'r+') as f:
 	config = json.load(f)
 	user = config['main']['username']
 	passwd = config['main']['password']
 
-if  user != "" and passwd != "":
-	bot = animelist()
-	bot.login(user, passwd)
-	bot.gotoanime(animename, user)
-	bot.updateanime()
+bot = animelist()
+bot.login(user, passwd)
+bot.gotoanime(animename, user)
+bot.updateanime()
 else:
 	print("\033[91mMAL Login ID not set. Run client with '--mal-id <username> <password>' to set one up!\033[0m")

@@ -2,6 +2,7 @@
     "main": {
         "path": "",
         "torrent": "",
+        "quality": "",
         "username": "",
         "password": ""
     },
