@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 from time import sleep
+import filetype
+import colorama
 import os
 import platform
 import subprocess
 import re
 import json
 
+colorama.init()
 #A context manager class which changes the working directory
 class cd:
     def __init__(self, newPath):
@@ -34,14 +37,19 @@ def createFileList(PATH):
 		filename = filedict[choice]
 		#Check if chosen file is a regular file or a directory
 		if os.path.isfile(filename):
-			print("Opening file in default program..")
-			if platform.system() == 'Windows':
-				os.startfile(filename)
-			elif platform.system() == 'Linux':
-				subprocess.run(['xdg-open', filename], stderr=subprocess.DEVNULL)
+			kind = filetype.guess(filename)
+			if kind.mime.split('/')[0] == "video":
+				print("Opening file in default program..")
+				if platform.system() == 'Windows':
+					os.startfile(filename)
+				elif platform.system() == 'Linux':
+					subprocess.run(['xdg-open', filename], stderr=subprocess.DEVNULL)
+				else:
+					print("\033[91mUnsupported Platform!\033[0m")
+					exit()
 			else:
-				print("\033[91mUnsupported Platform!\033[0m")
-				return
+				print("\033[91mUnsupported File Type! Ensure it's a video file and try again!\033[0m")
+				exit()
 		elif os.path.isdir(filename):
 			#If it's a directory, lists all files in it by recursively calling createFileList
 			createFileList(filename)

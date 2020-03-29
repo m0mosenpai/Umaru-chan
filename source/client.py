@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import colorama
 import socket
 import os
 import sys
@@ -7,7 +8,7 @@ import argparse
 import json
 
 BUFFSIZE = 2048
-
+colorama.init()
 #Shows the status
 def status():
 	global BUFFSIZE
