@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import colorama
 import socket
+import select
 import os
 import sys
 import subprocess
@@ -27,16 +28,15 @@ def status():
 		s.connect((socket.gethostname(), 6969))
 		s.settimeout(2)
 
-		while True:
-			#Send ping request to show status
-			status_ping = "send-status".encode('utf-8')
-			s.send(status_ping)
+		#Send ping request to show status
+		status_ping = "send-status".encode('utf-8')
+		s.send(status_ping)
 
-			try:
-				msg = s.recv(BUFFSIZE).decode('utf-8')
-				print(msg, end='')
-			except socket.timeout:
+		while True:
+			msg = s.recv(BUFFSIZE).decode('utf-8')
+			if len(msg) == 0:
 				break
+			print(msg, end='')
 
 	except socket.error:
 		print("\033[91mConnection Error!\033[0m")
@@ -52,16 +52,15 @@ def refresh():
 		s.connect((socket.gethostname(), 6969))
 		s.settimeout(5)
 
-		while True:
-			#Send ping request to refresh watchlist
-			refresh_ping = "refresh".encode('utf-8')
-			s.send(refresh_ping)
+		#Send ping request to refresh watchlist
+		refresh_ping = "refresh".encode('utf-8')
+		s.send(refresh_ping)
 
-			try:
-				msg = s.recv(BUFFSIZE).decode('utf-8')
-				print(msg, end='')
-			except socket.timeout:
+		while True:
+			msg = s.recv(BUFFSIZE).decode('utf-8')
+			if len(msg) == 0:
 				break
+			print(msg, end='')
 
 	except socket.error:
 		print("\033[91mConnection Error!\033[0m")
