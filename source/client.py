@@ -9,6 +9,13 @@ import json
 
 BUFFSIZE = 2048
 colorama.init()
+
+#Opens and reads the config file
+def readConfig():
+	with open('data/config.json', 'r+') as f:
+		config = json.load(f)
+	return config	
+
 #Shows the status
 def status():
 	global BUFFSIZE
@@ -61,9 +68,8 @@ def refresh():
 
 #Prints out the watchlist
 def showList():
-	with open('data/config.json', 'r+') as f:
-		config = json.load(f)
-		watchlist = config['watchlist']
+	config = readConfig()
+	watchlist = config['watchlist']
 
 	if not watchlist:
 		print("\033[91mYour Watchlist is empty! Add shows using -a/--add <name>!\033[0m")
@@ -74,23 +80,21 @@ def showList():
 
 #Add shows to watchlist
 def addShows(showlist):
-	with open("data/config.json", "r+") as f:
-		config = json.load(f)
-		for show in showlist:
-			#Takes show name from the argument before the ":" and the latest ep number after the ":"
-			if show.find(":") == -1:
-				config['watchlist'][show] = "0"
-			else:
-				config['watchlist'][show[:show.index(":")]] = show[(show.index(":")+1):]
-		f.seek(0)
-		json.dump(config, f, indent=4)
+	config = readConfig()
+	for show in showlist:
+		#Takes show name from the argument before the ":" and the latest ep number after the ":"
+		if show.find(":") == -1:
+			config['watchlist'][show] = "0"
+		else:
+			config['watchlist'][show[:show.index(":")]] = show[(show.index(":")+1):]
+	with open('data/config.json', 'w') as f:
+		json.dump(config, f, indent=4)	
 
 	print("\033[92mShows added succesfully! Use -l/--list to see your watchlist.\033[0m")
 
 #Deletes selected show from watchlist
 def deleteShows(numlist):
-	with open("data/config.json", "r+") as f:
-		config = json.load(f)
+	config = readConfig()
 	if not config['watchlist']:
 		print("\033[91mYour Watchlist is empty! Add shows using -a/--add <name>!\033[0m")
 	else:
@@ -114,9 +118,8 @@ def clearConfig():
 
 #Clears watchlist
 def clearList():
-	with open("data/config.json", "r+") as f:
-		config = json.load(f)
-		def_list = {"main":config['main'],"watchlist":{}}
+	config = readConfig()
+	def_list = {"main":config['main'],"watchlist":{}}
 	with open("data/config.json", "w") as f:
 		json.dump(def_list, f, indent=4)
 
@@ -124,31 +127,28 @@ def clearList():
 
 #Sets watch/anime library path
 def setPATH(PATH):
-	with open("data/config.json", 'r+') as f:
-		config = json.load(f)
-		config['main']['path'] = PATH
-		f.seek(0)
+	config = readConfig()
+	config['main']['path'] = PATH
+	with open('data/config.json', 'w') as f:
 		json.dump(config, f, indent=4)
 	
 	print("\033[92mDefault anime watching directory set!\033[0m")
 
 #Sets path for downloading torrent files
 def setTorrentPATH(PATH):
-	with open("data/config.json", 'r+') as f:
-		config = json.load(f)
-		config['main']['torrent'] = PATH
-		f.seek(0)
+	config = readConfig()
+	config['main']['torrent'] = PATH
+	with open('data/config.json', 'w') as f:
 		json.dump(config, f, indent=4)
 	
 	print("\033[92mDefault download directory for torrent files set!\033[0m")
 
 #Sets login id and password for MAL account
 def setMAL(username, password):
-	with open("data/config.json", "r+") as f:
-		config = json.load(f)
-		config['main']['username'] = username
-		config['main']['password'] = password
-		f.seek(0)
+	config = readConfig()
+	config['main']['username'] = username
+	config['main']['password'] = password
+	with open('data/config.json', 'w') as f:
 		json.dump(config, f, indent=4)
 	
 	print("\033[92mMAL Login ID set! Check secret.py.\033[0m")

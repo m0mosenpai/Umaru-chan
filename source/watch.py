@@ -37,9 +37,11 @@ def createFileList(PATH):
 		filename = filedict[choice]
 		#Check if chosen file is a regular file or a directory
 		if os.path.isfile(filename):
+			#Check if the file is a video file or not
 			kind = filetype.guess(filename)
 			if kind.mime.split('/')[0] == "video":
 				print("Opening file in default program..")
+				#Open the file according to the platform
 				if platform.system() == 'Windows':
 					os.startfile(filename)
 				elif platform.system() == 'Linux':
