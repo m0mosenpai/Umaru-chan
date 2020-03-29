@@ -18,7 +18,7 @@ class animeDownloader(scrapy.Spider):
 		items['current_season'] = response.xpath('//div[@class="ind-show"]/a/@title').extract()
 		#print(type(items))
 		with open('../../data/data.json', 'w') as f:
-			json.dump(items, f)
+			json.dump(items, f, indent=4)
 		yield items
 
 	#Function to parse schedule and time of shows	

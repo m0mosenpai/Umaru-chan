@@ -78,6 +78,8 @@ def main():
 	with open('data/config.json', 'r+') as f:
 		config = json.load(f)
 		PATH = config['main']['path']
+		U = config['main']['username']
+		P = config['main']['password']
 	#Exits if path not set	
 	if PATH == "":
 		print("\033[91mAnime Library not set. Run with -p/--path <PATH> to set one up!\033[0m")
@@ -86,8 +88,11 @@ def main():
 	filename = createFileList(PATH)
 	sleep(2)
 	choice = input("Do you want to update episode count on MAL? (y/n): ")
-	if choice == 'y':
-		updateMAL(filename)
+	if U == "" or P == "":
+		print("\033[91mUsername/Password not set! Run with -m/--mal-id to set one up!\033[0m")
+	else:	
+		if choice == 'y':
+			updateMAL(filename)
 
 if __name__ == "__main__":	
 	try:
