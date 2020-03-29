@@ -21,7 +21,6 @@ class cd:
 #Change directory to PATH, lists all files and folders in the directory and opens media file chosen by the user
 def createFileList(PATH):
 	with cd(PATH):
-		os.system('clear')
 		print("(In \033[95m{}\033[0m)\n".format(PATH))
 		filedict = {}
 		cnt = 0
@@ -31,7 +30,7 @@ def createFileList(PATH):
 			print("{}: \033[93m{}\033[0m".format(cnt, file))
 			cnt += 1
 		#Asks user to choose a media file to play.	
-		choice = int(input("\nSelect media file [0 - {}]: ".format(len(filedict) - 1)))
+		choice = int(input("\nSelect file/directory [0 - {}]: ".format(len(filedict) - 1)))
 		filename = filedict[choice]
 		#Check if chosen file is a regular file or a directory
 		if os.path.isfile(filename):
@@ -50,11 +49,7 @@ def createFileList(PATH):
 			#Else, invalid file type.
 			print("\033[91mInvalid file/directory.\033[0m")
 	
-	sleep(2)
-	choice = input("Do you want to update episode count on MAL? (y/n): ")
-	if choice == 'y':
-		updateMAL(filename)
-	return
+	return filename
 
 #calls mal_log.py to update anime
 def updateMAL(filename):
@@ -75,7 +70,11 @@ def main():
 		print("\033[91mAnime Library not set. Run with -p/--path <PATH> to set one up!\033[0m")
 		exit()
 
-	createFileList(PATH)
+	filename = createFileList(PATH)
+	sleep(2)
+	choice = input("Do you want to update episode count on MAL? (y/n): ")
+	if choice == 'y':
+		updateMAL(filename)
 
 if __name__ == "__main__":	
 	try:

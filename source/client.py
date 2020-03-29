@@ -78,7 +78,7 @@ def addShows(showlist):
 		for show in showlist:
 			#Takes show name from the argument before the ":" and the latest ep number after the ":"
 			if show.find(":") == -1:
-				config['watchlist'][show] = '0'
+				config['watchlist'][show] = "0"
 			else:
 				config['watchlist'][show[:show.index(":")]] = show[(show.index(":")+1):]
 		f.seek(0)
@@ -196,3 +196,6 @@ try:
 
 except KeyboardInterrupt:
 	print("\n\033[91mKeyboard Interrupt Detected!\033[0m")
+
+except json.decoder.JSONDecodeError:
+	print("\033[91mConfig file got corrupted! Try -cl/--clr-list to reset watchlist or -cc/clr-config to reset config if the former doesn't work.\033[0m")
