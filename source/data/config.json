@@ -1,13 +1,9 @@
 {
     "main": {
-        "path": "D:/Anime/",
-        "torrent": "D:/Downloads/",
-        "username": "butterMiner",
-        "password": "Test#123"
+        "path": "",
+        "torrent": "",
+        "username": "",
+        "password": ""
     },
-    "watchlist": {
-        "boku no hero academia": "25",
-        "ahiru no sora": "0",
-        "oregairu": "24"
-    }
+    "watchlist": {}
 }
