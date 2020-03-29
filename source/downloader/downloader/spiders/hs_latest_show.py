@@ -44,7 +44,7 @@ class HSlatestShow(scrapy.Spider):
 		magnet_link = response.xpath('//td[@class="text-center"]/a/@href').extract()[1]
 		aname = (latest_ep[latest_ep.index('] '):latest_ep.index(' -')][2:])
 		epno = (latest_ep[latest_ep.index('- '):latest_ep.index(' [')][2:])
-
+		print("Checking new episode for {}".format(aname))
 		#print("Latest episode of {} is {}".format(aname, epno))
 
 		currentep = int(watchlist[aname])

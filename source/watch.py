@@ -7,6 +7,9 @@ import platform
 import subprocess
 import re
 import json
+import colorama
+
+colorama.init()
 
 colorama.init()
 #A context manager class which changes the working directory

@@ -6,6 +6,9 @@ import sys
 import subprocess
 import argparse
 import json
+import colorama
+
+colorama.init()
 
 BUFFSIZE = 2048
 colorama.init()
