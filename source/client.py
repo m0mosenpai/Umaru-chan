@@ -23,6 +23,26 @@ def readConfig():
 #Shows the status
 def status():
 	global BUFFSIZE
+
+	config = readConfig()
+	path = config['main']['path']
+	torrent_path = config['main']['torrent']
+	qual = config['main']['quality']
+	U = config['main']['username']
+	P = config['main']['password']
+
+	print("-------------------------------------")
+	print("\033[92m###VARIABLES SET###\033[0m")
+	print("")
+	print("\033[93mWatching Directory:\033[0m \033[95m{}\033[0m".format(path))
+	print("\033[93mTorrent Download Directory:\033[0m \033[95m{}\033[0m".format(torrent_path))
+	print("\033[93mQuality of Downloads:\033[0m \033[95m{}\033[0m".format(qual))
+	print("\033[93mMAL Username:\033[0m \033[95m{}\033[0m".format(U))
+	print("\033[93mMAL Password:\033[0m \033[95m{}\033[0m".format(P))
+	print("-------------------------------------")
+	print("\033[92m###SERVER STATUS###\033[0m")
+	print("")
+
 	try:
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		s.connect((socket.gethostname(), 6969))
@@ -44,29 +64,31 @@ def status():
 	finally:
 		s.close()
 
-#Refreshed database
-def refresh():
-	global BUFFSIZE
-	try:
-		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		s.connect((socket.gethostname(), 6969))
-		s.settimeout(5)
+	print("-------------------------------------")
 
-		#Send ping request to refresh watchlist
-		refresh_ping = "refresh".encode('utf-8')
-		s.send(refresh_ping)
+# #Refreshed database
+# def refresh():
+# 	global BUFFSIZE
+# 	try:
+# 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# 		s.connect((socket.gethostname(), 6969))
+# 		s.settimeout(5)
 
-		while True:
-			msg = s.recv(BUFFSIZE).decode('utf-8')
-			if len(msg) == 0:
-				break
-			print(msg, end='')
+# 		#Send ping request to refresh watchlist
+# 		refresh_ping = "refresh".encode('utf-8')
+# 		s.send(refresh_ping)
 
-	except socket.error:
-		print("\033[91mConnection Error!\033[0m")
+# 		while True:
+# 			msg = s.recv(BUFFSIZE).decode('utf-8')
+# 			if len(msg) == 0:
+# 				break
+# 			print(msg, end='')
 
-	finally:
-		s.close()
+# 	except socket.error:
+# 		print("\033[91mConnection Error!\033[0m")
+
+# 	finally:
+# 		s.close()
 
 #Prints out the watchlist
 def showList():
@@ -177,7 +199,7 @@ parser.add_argument('-t', '--torrent', nargs=1, help="Sets default download dire
 parser.add_argument('-q', '--quality', nargs=1, help="Sets quality of downloads (720p/1080p)", metavar=("QUAL"))
 parser.add_argument('-m', '--mal-id', nargs=2, help="Sets username and password of MyAnimeList account.")
 parser.add_argument('-s', '--status', help="Displays current status.",action='store_true')
-parser.add_argument('-r', '--refresh', help="Refreshes database.", action='store_true')
+# parser.add_argument('-r', '--refresh', help="Refreshes database.", action='store_true')
 args = parser.parse_args()
 
 try:
@@ -203,8 +225,8 @@ try:
 		clearList()
 	elif args.status:
 		status()
-	elif args.refresh:
-		refresh()
+	# elif args.refresh:
+	# 	refresh()
 	else:
 		print("\033[91mAtleast one argument is required!\033[0m")
 		parser.print_help()

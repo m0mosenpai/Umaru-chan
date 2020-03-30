@@ -31,6 +31,10 @@ def createFileList(PATH):
 		filedict = {}
 		cnt = 0
 		files = os.listdir()
+		if not files:
+			print("\033[91mDirectory is Empty!\033[0m")
+			exit()
+
 		for file in files:
 			filedict[cnt] = file
 			print("{}: \033[93m{}\033[0m".format(cnt, file))
