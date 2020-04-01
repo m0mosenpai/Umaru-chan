@@ -1,0 +1,5 @@
+scapy==2.4.3
+Scrapy==2.0.1
+selenium==3.141.0
+fuzzyset==0.0.19
+requests==2.23.0
