@@ -1,4 +1,5 @@
 import scrapy
+import platform
 import json
 import urllib.request
 import ssl
@@ -27,10 +28,15 @@ class HSlatestShow(scrapy.Spider):
 		config = readConfig()
 		watchlist = config['watchlist']
 		path = config["main"]["torrent"]
-		quality = config["main"]["quality"]
+		
+		if platform.system() == "Linux":
+			if path[-1] != "/"
+				path = path + "/"
+		if platform.system() == "Windows":
+			if path[-1] != "\\"
+				path = path + "\\"
 
-		if path == "":
-			print("\033[91mTorrent directory not set. Run with -t/--torrent <PATH> to set one up!\033[0m")
+		quality = config["main"]["quality"]
 
 		for show in watchlist:
 			head = "https://nyaa.si/?f=0&c=0_0&q=horriblesubs+"
@@ -59,5 +65,3 @@ class HSlatestShow(scrapy.Spider):
 		config["watchlist"][aname] = epno
 		with open("../../data/config.json", 'w') as f:
 			json.dump(config, f, indent=4)
-
-			

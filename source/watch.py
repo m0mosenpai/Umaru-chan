@@ -11,7 +11,6 @@ import colorama
 
 colorama.init()
 
-colorama.init()
 #A context manager class which changes the working directory
 class cd:
     def __init__(self, newPath):
