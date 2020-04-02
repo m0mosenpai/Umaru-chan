@@ -5,7 +5,9 @@ A program to automate anime watching and downloading from horriblesubs.info. <br
 # Installation
 `git clone https://github.com/SteamedMomo/Umaru-chan.git`<br>
 Create a virtual environment and run requirements.txt to install all dependencies<br>
-`pip install -r requirements.txt`
+`pip install -r requirements.txt`<br>
+Run install.py and follow the prompts on screen.
 
-# Other Contributors
-prog-butter
+# Authors
+Sarthak Khattar @[SteamedMomo](https://github.com/SteamedMomo) <br>
+Ayush Singh @[prog-butter](https://github.com/prog-butter)
