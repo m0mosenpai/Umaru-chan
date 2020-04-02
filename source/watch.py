@@ -73,7 +73,7 @@ def updateMAL(filename):
 	#Gets anime name from file name but splitting around () or [] and stripping off white spaces
 	animename = re.split("\]|\)|\[|\(", filename)[2].split('-')[0].strip()
 	print("Updating episode count on MAL...")
-	subprocess.run(["python3", "mal_log.py", animename])
+	subprocess.run(["./mal_log.py", animename])
 	print("Done.")
 
 #main function
