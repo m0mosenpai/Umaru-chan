@@ -30,10 +30,10 @@ class HSlatestShow(scrapy.Spider):
 		path = config["main"]["torrent"]
 		
 		if platform.system() == "Linux":
-			if path[-1] != "/"
+			if path[-1] != "/":
 				path = path + "/"
 		if platform.system() == "Windows":
-			if path[-1] != "\\"
+			if path[-1] != "\\":
 				path = path + "\\"
 
 		quality = config["main"]["quality"]
