@@ -108,9 +108,11 @@ def addShows(showlist):
 	for show in showlist:
 		#Takes show name from the argument before the ":" and the latest ep number after the ":"
 		if show.find(":") == -1:
-			config['watchlist'][show] = "0"
+			config['watchlist'][show] = ["0"]
+			config['watchlist'][show].append("False")
 		else:
-			config['watchlist'][show[:show.index(":")]] = show[(show.index(":")+1):]
+			config['watchlist'][show[:show.index(":")]] = [show[(show.index(":")+1):]]
+			config['watchlist'][show[:show.index(":")]].append("False")
 	with open('data/config.json', 'w') as f:
 		json.dump(config, f, indent=4)	
 
