@@ -70,7 +70,6 @@ def downloadEp(epno, aname, response):
 
 		DONE = True
 
-		
 class HSlatestShow(scrapy.Spider):
 	name = 'hslatest'
 	start_urls = ["https://nyaa.si/"]
@@ -131,7 +130,7 @@ class HSlatestShow(scrapy.Spider):
 					print("Latest episode isn't out yet! Waiting...")
 					time.sleep(60)
 			else:
-				downloadEp(epno, aname, response)
+				DONE = True
 
 		#Clear the queue
 		queue.clear()
