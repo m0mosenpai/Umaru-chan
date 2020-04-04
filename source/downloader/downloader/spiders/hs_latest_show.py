@@ -46,9 +46,9 @@ def getPDT():
 def downloadEp(epno, aname, response):
 	global DONE
 
+	queue = readQueue()
 	currentep = int(queue[aname])
 	config = readConfig()
-	print("\033[93m[*] Checking for new episode: {}\033[0m".format(aname))
 
 	for i in range(currentep+1, int(epno) + 1): #ep no in config is the last downloaded ep
 		link = "https://nyaa.si"
@@ -62,6 +62,11 @@ def downloadEp(epno, aname, response):
 		config["watchlist"][aname][1] = str(time.time())
 		with open("../../data/config.json", 'w') as f:
 			json.dump(config, f, indent=4)
+
+		#Update queue
+		queue[aname] = str(i)
+		with open("../../tmp/tmp_queue.json", 'w') as f:
+			json.dump(queue, f, indent=4)
 
 		DONE = True
 
@@ -104,25 +109,29 @@ class HSlatestShow(scrapy.Spider):
 		magnet_link = response.xpath('//td[@class="text-center"]/a/@href').extract()[1]
 		aname = (latest_ep[latest_ep.index('] '):latest_ep.index(' -')][2:])
 		epno = (latest_ep[latest_ep.index('- '):latest_ep.index(' [')][2:])
+		pdt = getPDT()
 
 		downloadEp(epno, aname, response)
 
-		# Check if latest episode is pending
 		schedule = readSchedule()
 		show_hr = int(schedule[aname].split(':')[0])
 		show_min = int(schedule[aname].split(':')[1])
-		pdt = getPDT()
 		DONE = False
 		
 		#Look for pending episode
-		if pdt.hour <= show_hr:
-			while not DONE:
-				if pdt.minute > show_min:
-					downloadEp(epno, aname, response)
-					continue
-
+		while not DONE:
+			pdt = getPDT()
+			if pdt.hour < show_hr:
 				print("Latest episode isn't out yet! Waiting...")
 				time.sleep(60)
+			elif pdt.hour == show_hr: 
+				if pdt.minute > show_min:
+					downloadEp(epno, aname, response)
+				else:
+					print("Latest episode isn't out yet! Waiting...")
+					time.sleep(60)
+			else:
+				downloadEp(epno, aname, response)
 
 		#Clear the queue
 		queue.clear()
