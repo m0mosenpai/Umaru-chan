@@ -1,7 +1,7 @@
 __pycache__
-LogFile.txt
 downloader/downloader/__pycache__
 chromedriver.exe
 debug.log
 data
 source/data/secrets.py
+tmp

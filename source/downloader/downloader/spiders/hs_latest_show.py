@@ -5,6 +5,8 @@ import urllib.request
 import ssl
 import time
 import colorama
+import datetime
+import pytz
 
 ssl._create_default_https_context = ssl._create_unverified_context
 colorama.init()
@@ -13,6 +15,7 @@ links = []
 queue = {}
 path = ""
 quality=""
+DONE = False
 
 #Reads config file
 def readConfig():
@@ -24,8 +27,45 @@ def readConfig():
 def readQueue():
 	with open("../../tmp/tmp_queue.json", "r") as f:
 		queue = json.load(f)
-	return queue	
+	return queue
 
+#Read schedule
+def readSchedule():
+	with open("../../data/data.json", "r")	as f:
+		data = json.load(f)
+		schedule = data['timetable']
+	return schedule
+
+#Get PDT
+def getPDT():
+	pst_timezone = pytz.timezone("US/Pacific")
+	pdt = datetime.datetime.now(pst_timezone).time()
+	return pdt
+
+#Download episode
+def downloadEp(epno, aname, response):
+	global DONE
+
+	currentep = int(queue[aname])
+	config = readConfig()
+	print("\033[93m[*] Checking for new episode: {}\033[0m".format(aname))
+
+	for i in range(currentep+1, int(epno) + 1): #ep no in config is the last downloaded ep
+		link = "https://nyaa.si"
+		link += response.xpath('//a[contains(text(), "- ' + f'{i:02}' +'")]/../following-sibling::td[1]/a/@href').extract()[0]
+		print("[*] Found new episode: \033[95m{} [{}] - {}\033[0m".format(i, quality, aname))
+		urllib.request.urlretrieve(link, path + aname + str(i) + " [{}].torrent".format(quality))
+		print("\033[92m[+] Downloaded!\033[0m")
+
+		#Update config with latest downloaded episode and timestamp	
+		config["watchlist"][aname][0] = str(i)
+		config["watchlist"][aname][1] = str(time.time())
+		with open("../../data/config.json", 'w') as f:
+			json.dump(config, f, indent=4)
+
+		DONE = True
+
+		
 class HSlatestShow(scrapy.Spider):
 	name = 'hslatest'
 	start_urls = ["https://nyaa.si/"]
@@ -51,30 +91,40 @@ class HSlatestShow(scrapy.Spider):
 
 		for show in queue.keys():
 			head = "https://nyaa.si/?f=0&c=0_0&q=horriblesubs+"
-			tail = "+" + quality + "&p="
+			tail = "+" + quality + "+" + "mkv" + "&p="
 			name = show.replace(' ', '+')
 			show = head + name + tail
 			yield scrapy.Request(show, callback = self.parse_show)
 
 	def parse_show(self, response):
+		global DONE
+
 		#Get the latest episode of the anime
 		latest_ep = response.xpath('//td[@colspan="2"]/a[not(@class)]/@title').extract()[0]
 		magnet_link = response.xpath('//td[@class="text-center"]/a/@href').extract()[1]
 		aname = (latest_ep[latest_ep.index('] '):latest_ep.index(' -')][2:])
 		epno = (latest_ep[latest_ep.index('- '):latest_ep.index(' [')][2:])
-		print("\033[93m[*] Checking for new episode: {}\033[0m".format(aname))
 
-		currentep = int(queue[aname])
-		for i in range(currentep+1, int(epno) + 1): #ep no in config is the last downloaded ep
-			link = "https://nyaa.si"
-			link += response.xpath('//a[contains(text(), "- ' + f'{i:02}' +'")]/../following-sibling::td[1]/a/@href').extract()[0]
-			print("[*] Found new episode: \033[95m{} [{}] - {}\033[0m".format(i, quality, aname))
-			urllib.request.urlretrieve(link, path + aname + str(i) + " [{}].torrent".format(quality))
-			print("\033[92m[+] Downloaded!\033[0m")
+		downloadEp(epno, aname, response)
 
-		#Update config with latest downloaded episode and time stamp	
-		config = readConfig()
-		config["watchlist"][aname][0] = epno
-		config["watchlist"][aname][1] = str(time.time())
-		with open("../../data/config.json", 'w') as f:
-			json.dump(config, f, indent=4)
+		# Check if latest episode is pending
+		schedule = readSchedule()
+		show_hr = int(schedule[aname].split(':')[0])
+		show_min = int(schedule[aname].split(':')[1])
+		pdt = getPDT()
+		DONE = False
+		
+		#Look for pending episode
+		if pdt.hour <= show_hr:
+			while not DONE:
+				if pdt.minute > show_min:
+					downloadEp(epno, aname, response)
+					continue
+
+				print("Latest episode isn't out yet! Waiting...")
+				time.sleep(60)
+
+		#Clear the queue
+		queue.clear()
+		with open("../../tmp/tmp_queue.json", "w") as f:
+			json.dump(queue, f, indent=4)

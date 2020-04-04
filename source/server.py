@@ -3,7 +3,6 @@ import select
 import socket
 import os
 import datetime
-import pytz
 import subprocess
 import json
 import fuzzyset
@@ -34,6 +33,12 @@ def readConfig():
 	with open("data/config.json", 'r') as f:
 		config = json.load(f)
 	return config
+
+#Reads queue
+def readQueue():
+	with open("tmp/tmp_queue.json", "r") as f:
+		queue = json.load(f)
+	return queue	
 
 #Checks if 24 hours have passed and resets download values for shows accordingly
 def resetDownloadStatus():
@@ -179,7 +184,15 @@ def main():
 				queue[show] = watchlist[show][0]
 			else:
 				print("\033[91m[-] {} has already been downloaded! Ignored.\033[0m".format(show))
+
+	#Dump queue to tmp file			
+	with open('tmp/tmp_queue.json', "w") as f:
+		json.dump(queue, f, indent=4)
+
 	while True:
+		#Read from tmp_queue.json
+		queue = readQueue()
+		#If empty, exit
 		if not queue:
 			print("\033[92m[*] All done!\033[0m")
 			return
@@ -193,8 +206,6 @@ def main():
 			start = time.monotonic()
 			ACTIVE = False		
 			checkNewAndDownload()
-			#Clear queue after downloading
-			queue.clear()
 
 		now = time.monotonic()	
 		if now - start >= INTERVAL:
@@ -202,7 +213,15 @@ def main():
 
 if __name__ == "__main__":
 	try:
-		main()
+		config = readConfig()
+		if config["main"]["torrent"] == "":
+			print("\033[91mTorrent download directory not set! Set by running client.py with -t/--torrent\033[0m")
+		elif config["main"]["quality"] == "":
+			print("\033[91mDownload quality not set! Set by running client.py with -q/--quality\033[0m")
+		elif not config["watchlist"]:
+			print("\033[91mWatchlist is empty! Add shows by running client.py with -a/--add option\033[0m")
+		else:
+			main()
 
 	except KeyboardInterrupt:
 		print("\n\033[91mKeyboard Interrupt Detected. Exiting.\033[0m")
