@@ -8,10 +8,14 @@ import subprocess
 import json
 import fuzzyset
 import time
+import colorama
 
 BUFFSIZE = 2048
 ACTIVE = True
 LAST_REFRESH = ""
+INTERVAL = 10
+
+colorama.init()
 
 #A context manager class which changes the working directory
 class cd:
@@ -25,39 +29,56 @@ class cd:
     def __exit__(self, etype, value, traceback):
         os.chdir(self.savedPath)
 
-#PDT time for HorribleSubs
-def getPDT():
-	pst_timezone = pytz.timezone("US/Pacific")
-	pdt = datetime.datetime.now(pst_timezone).time()
-	return pdt
+#Reads config file
+def readConfig():
+	with open("data/config.json", 'r') as f:
+		config = json.load(f)
+	return config
 
-#Compare showtime and PDT
-def timeCompare(showtime):
-	pdt = getPDT()
-	pdth = 	pdt.hour
-	pdtm = pdt.minute
-	sth = showtime.split(':')[0]
-	stm = showtime.split(':')[1]
+#Checks if 24 hours have passed and resets download values for shows accordingly
+def resetDownloadStatus():
+	config = readConfig()
+	watchlist = config['watchlist']
+	timestamp = time.time()
 
-	if pdth > sth:
-		return False
-	elif pdth == sth:
-		if pdtm >= stm:
-			return False
-		else:
-			return True
-	else:
-		return True
+	for show in watchlist.keys():
+		if watchlist[show][1] != "False":
+			if (timestamp - float(watchlist[show][1])) >= 86400:
+				config['watchlist'][show][1] = "False"
+	with open("data/config.json", "w") as f:
+		json.dump(config, f, indent=4)		
+
+
+# #PDT time for HorribleSubs
+# def getPDT():
+# 	pst_timezone = pytz.timezone("US/Pacific")
+# 	pdt = datetime.datetime.now(pst_timezone).time()
+# 	return pdt
 
 #Read watchlist from watchlist file
-def getWatchlist():
-	with open('data/config.json', 'r+') as f:
-		config = json.load(f)
-		watchlist = config['watchlist']
-	return watchlist
+def setCorrectWatchlist(season):
+	config = readConfig()
+	watchlist = config['watchlist']
+
+	#Add shows from current season to fuzzyset list
+	fset = fuzzyset.FuzzySet()
+	for show in season:
+		fset.add(show)
+
+	#Generating correct watchlist	
+	fset_watchlist = {}
+	for show in watchlist.keys():
+		if fset.get(show)[0][0] >= 0.7:
+			fset_watchlist[fset.get(show)[0][1]] = watchlist[show]
+		else:
+			print("\033[91m[-] {} does not seem to be airing this season! Ignoring..\033[0m".format(show))
+	
+	config['watchlist'] = fset_watchlist
+	with open('data/config.json', 'w') as f:
+		json.dump(config, f, indent=4)
 
 #Gets scraped data from the data directory
-def getShows():
+def getData():
 	#Change to scrapy directory
 	with cd("downloader/downloader"):
 		#Runs scrapy; remove the --nolog option to see logs in server.py output
@@ -68,6 +89,11 @@ def getShows():
 
 	#Dictionary with entire data
 	return data
+
+#Calls Scrapy and downloads the episodes
+def checkNewAndDownload():
+	with cd("downloader/downloader"):
+		output = subprocess.run(["scrapy", "crawl", "hslatest", "--nolog"])
 
 #Upon request from client, sends response. Else, keep scraping
 def sendResponse():
@@ -118,65 +144,65 @@ def sendResponse():
 			#Change to scrapy directory
 			with cd("downloader/downloader"):
 				#Runs scrapy; remove the --nolog option to see logs in server.py output
-				subprocess.run(["scrapy", "crawl", "anime", "-o", "../../data/data.json", "--nolog"])
+				subprocess.run(["scrapy", "crawl", "anime", "-o", "../../data/data.json"])
 
 			LAST_REFRESH = local_datetime.ctime()	
 			clientsocket.send(bytes("\033[92mDatabase refreshed successfully!\033[0m\n", 'utf-8'))
 
 	s.close()
 
-def checkNewAndDownload():
-	with cd("downloader/downloader"):
-		output = subprocess.run(["scrapy", "crawl", "hslatest", "--nolog"])
+#Main process	
+def main():
+	global ACTIVE
+	global INTERVAL
 
-#Main process - runs forever once started	
-interval = 10 #in seconds
-should_check = True
-while True:
-	if should_check is True:
-		start = time.monotonic()
+	data = getData()
+	schedule = data['timetable']
+	season = data['current_season']
+	queue = {}
 
-	sendResponse()
-	print("sendResponse Over!")
+	#Correct watchlist by passing through fuzzyset
+	setCorrectWatchlist(season)
+	#Check if the download status of shows needs to be reset
+	resetDownloadStatus()
 
-	#Run below every 10 mins
-	if (should_check):
-		should_check = False
-		data = getShows()
-		watchlist = getWatchlist()
-		nums = list(watchlist.values())
-		shows = watchlist.keys()
-		season_fset = fuzzyset.FuzzySet()
-		#Add all shows in current season to fuzzy set
-		for show in data["current_season"]:
-			season_fset.add(show)
+	config = readConfig()
+	watchlist = config['watchlist']
+	
+	#Check if anime is in schedule and value is False(default), download
+	#Set to time-stamp value when episode is downloaded
+	#Reset Time-stamp value to 0 after 24 hours	
+	for show in watchlist.keys():
+		if show in schedule:
+			print("\033[92m[+] {} is airing today!\033[0m".format(show))
+			if watchlist[show][1] == "False":
+				queue[show] = watchlist[show][0]
+			else:
+				print("\033[91m[-] {} has already been downloaded! Ignored.\033[0m".format(show))
+	while True:
+		if not queue:
+			print("\033[92m[*] All done!\033[0m")
+			return
 
-		#Get actual watchlist (Names according to hs)
-		f_watchlist = {}
+		#Dump queue in tmp file	
+		with open('tmp/tmp_queue.json', 'w+') as f:
+			json.dump(queue, f, indent=4)
 
-		i = 0
-		for show in shows:
-			# print(type(season_fset.get(show)))
-			f_watchlist[season_fset.get(show)[0][1]] = nums[i]
-			i += 1
-
-		#print('Correct watchlist: {}'.format(f_watchlist))
-
-		config = {}
-		with open('data/config.json', 'r') as f:
-			config = json.load(f)
-			config['watchlist']= f_watchlist
-
-		with open('data/config.json', 'w') as f:
-			json.dump(config, f, indent=4)
-
-		local_datetime = datetime.datetime.now()
-		local_time =  local_datetime.ctime().split()[3]
-		print('Server is running! [{}]'.format(local_time))
-
-		if len(config["main"]["path"]) != 0 and len(config["main"]["torrent"]) != 0:
+		#Download episodes of anime in queue every INTERVAL
+		if ACTIVE:
+			start = time.monotonic()
+			ACTIVE = False		
 			checkNewAndDownload()
+			#Clear queue after downloading
+			queue.clear()
 
-	now = time.monotonic()
-	if (now - start > interval):
-		should_check = True
+		now = time.monotonic()	
+		if now - start >= INTERVAL:
+			ACTIVE = True
+
+if __name__ == "__main__":
+	try:
+		main()
+
+	except KeyboardInterrupt:
+		print("\n\033[91mKeyboard Interrupt Detected. Exiting.\033[0m")
