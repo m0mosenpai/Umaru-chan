@@ -9,8 +9,6 @@ import argparse
 import json
 import colorama
 
-colorama.init()
-
 BUFFSIZE = 2048
 colorama.init()
 
@@ -66,30 +64,6 @@ def status():
 
 	print("-------------------------------------")
 
-# #Refreshed database
-# def refresh():
-# 	global BUFFSIZE
-# 	try:
-# 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# 		s.connect((socket.gethostname(), 6969))
-# 		s.settimeout(5)
-
-# 		#Send ping request to refresh watchlist
-# 		refresh_ping = "refresh".encode('utf-8')
-# 		s.send(refresh_ping)
-
-# 		while True:
-# 			msg = s.recv(BUFFSIZE).decode('utf-8')
-# 			if len(msg) == 0:
-# 				break
-# 			print(msg, end='')
-
-# 	except socket.error:
-# 		print("\033[91mConnection Error!\033[0m")
-
-# 	finally:
-# 		s.close()
-
 #Prints out the watchlist
 def showList():
 	config = readConfig()
@@ -119,7 +93,7 @@ def addShows(showlist):
 	print("\033[92mShows added succesfully! Use -l/--list to see your watchlist.\033[0m")
 
 #Deletes selected show from watchlist
-def deleteShows(numlist):
+def removeShows(numlist):
 	config = readConfig()
 	if not config['watchlist']:
 		print("\033[91mYour Watchlist is empty! Add shows using -a/--add <name>!\033[0m")
@@ -190,22 +164,22 @@ def setMAL(username, password):
 	print("\033[92mAuto list-updation is on. Don't forget to add anime to your 'Watching' list on MAL!\033[0m")
 
 parser = argparse.ArgumentParser(description="Command-line interface for Umaru-chan.")
-parser.add_argument('-a', '--add', nargs='+', help="Adds shows to the watchlist", metavar=("NAME"))
-parser.add_argument('-d', '--delete', nargs='+', help="Removes one or more shows from the watchlist", metavar=("No."))
+parser.add_argument('-a', '--add', nargs='+', help="Adds shows to the watchlist.", metavar=("NAME"))
+parser.add_argument('-r', '--remove', nargs='+', help="Removes one or more shows from the watchlist.", metavar=("No."))
 parser.add_argument('-l', '--list', help="Displays current set watchlist.", action='store_true')
-parser.add_argument('-cc', '--clr-config', help="Clears config", action='store_true')
-parser.add_argument('-cl', '--clr-list', help="Clears watchlist", action='store_true')
-parser.add_argument('-w', '--watch', help="Watch anime.", action='store_true')
+parser.add_argument('-cc', '--clr-config', help="Clears config.", action='store_true')
+parser.add_argument('-cl', '--clr-list', help="Clears watchlist.", action='store_true')
+parser.add_argument('-w', '--watch', help="Watch anime from your local library.", action='store_true')
 parser.add_argument('-p', '--path', nargs=1, help="Sets default watch directory/anime library.", metavar=("PATH"))
 parser.add_argument('-t', '--torrent', nargs=1, help="Sets default download directory for torrent files.", metavar=("DIR"))
 parser.add_argument('-q', '--quality', nargs=1, help="Sets quality of downloads (720p/1080p)", metavar=("QUAL"))
-parser.add_argument('-m', '--mal-id', nargs=2, help="Sets username and password of MyAnimeList account.")
-parser.add_argument('-s', '--status', help="Displays current status.",action='store_true')
-# parser.add_argument('-r', '--refresh', help="Refreshes database.", action='store_true')
+parser.add_argument('-m', '--mal-id', nargs=2, help="Sets username and password of MyAnimeList account.", metavar=("USER", "PASS"))
+parser.add_argument('-d', '--download', nargs=3, help="Downloads a full show.", metavar=("SHOW", "START", "END"))
+parser.add_argument('-s', '--status', help="Displays current status.", action='store_true')
 args = parser.parse_args()
 
 try:
-	if args.watch:
+	if args.watch:	
 		exec(open('watch.py').read())
 	elif args.path != None:
 		setPATH(args.path[0])
@@ -217,8 +191,8 @@ try:
 		setMAL(args.mal_id[0], args.mal_id[1])
 	elif args.add != None:
 		addShows(args.add)
-	elif args.delete != None:
-		deleteShows(args.delete)
+	elif args.remove != None:
+		removeShows(args.remove)
 	elif args.list:
 		showList()
 	elif args.clr_config:
@@ -227,8 +201,6 @@ try:
 		clearList()
 	elif args.status:
 		status()
-	# elif args.refresh:
-	# 	refresh()
 	else:
 		print("\033[91mAtleast one argument is required!\033[0m")
 		parser.print_help()

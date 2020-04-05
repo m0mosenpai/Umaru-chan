@@ -53,13 +53,6 @@ def resetDownloadStatus():
 	with open("data/config.json", "w") as f:
 		json.dump(config, f, indent=4)		
 
-
-# #PDT time for HorribleSubs
-# def getPDT():
-# 	pst_timezone = pytz.timezone("US/Pacific")
-# 	pdt = datetime.datetime.now(pst_timezone).time()
-# 	return pdt
-
 #Read watchlist from watchlist file
 def setCorrectWatchlist(season):
 	config = readConfig()
@@ -139,21 +132,6 @@ def sendResponse():
 				clientsocket.send(bytes("Umaru-chan is working hard! \n", 'utf-8'))
 			else:
 				clientsocket.send(bytes("All done for the day! \n", 'utf-8'))
-
-		#If a refresh ping is received, database is refreshed by calling scrapy	
-		elif client_msg == "refresh":
-			if os.path.exists("data/data.json"):
-				#Remove current data.json
-				os.remove("data/data.json")
-
-			#Change to scrapy directory
-			with cd("downloader/downloader"):
-				#Runs scrapy; remove the --nolog option to see logs in server.py output
-				subprocess.run(["scrapy", "crawl", "anime", "-o", "../../data/data.json"])
-
-			LAST_REFRESH = local_datetime.ctime()	
-			clientsocket.send(bytes("\033[92mDatabase refreshed successfully!\033[0m\n", 'utf-8'))
-
 	s.close()
 
 #Main process	
