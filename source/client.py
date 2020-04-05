@@ -8,9 +8,22 @@ import subprocess
 import argparse
 import json
 import colorama
+import platform
 
 BUFFSIZE = 2048
 colorama.init()
+
+#A context manager class which changes the working directory
+class cd:
+    def __init__(self, newPath):
+        self.newPath = os.path.expanduser(newPath)
+
+    def __enter__(self):
+        self.savedPath = os.getcwd()
+        os.chdir(self.newPath)
+
+    def __exit__(self, etype, value, traceback):
+        os.chdir(self.savedPath)
 
 #Opens and reads the config file
 def readConfig():
@@ -107,6 +120,25 @@ def removeShows(numlist):
 
 		print("The following shows have been deleted from the watchlist")
 
+#Download specified show
+def downloadShow(showinfo):
+	aname = showinfo[0]
+	start = showinfo[1]
+	end = showinfo[2]
+	queue = [aname, start, end]
+
+	with open("tmp/tmp_queue.json", 'w+') as f:
+		json.dump(queue, f, indent=4)
+
+	config = readConfig()
+	if config["main"]["torrent"] == "":
+		print("\033[91mTorrent download directory not set! Set by running client.py with -t/--torrent\033[0m")
+	elif config["main"]["quality"] == "":
+		print("\033[91mDownload quality not set! Set by running client.py with -q/--quality\033[0m")
+	else:	
+		with cd("downloader/downloader"):
+			subprocess.run(["scrapy", "crawl", "show", "--nolog"])
+
 #Clears Config
 def clearConfig():
 	#Defining default config
@@ -137,6 +169,15 @@ def setPATH(PATH):
 #Sets path for downloading torrent files
 def setTorrentPATH(PATH):
 	config = readConfig()
+
+	#Check for a trailing slash based on platform
+	if platform.system() == "Linux":
+		if PATH[-1] != "/":
+			PATH = PATH + "/"
+	if platform.system() == "Windows":
+		if PATH[-1] != "\\":
+			PATH = PATH + "\\"
+
 	config['main']['torrent'] = PATH
 	with open('data/config.json', 'w') as f:
 		json.dump(config, f, indent=4)
@@ -193,6 +234,8 @@ try:
 		addShows(args.add)
 	elif args.remove != None:
 		removeShows(args.remove)
+	elif args.download != None:
+		downloadShow(args.download)
 	elif args.list:
 		showList()
 	elif args.clr_config:

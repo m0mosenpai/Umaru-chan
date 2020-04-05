@@ -80,7 +80,7 @@ def getData():
 	#Change to scrapy directory
 	with cd("downloader/downloader"):
 		#Runs scrapy; remove the --nolog option to see logs in server.py output
-		subprocess.run(["scrapy", "crawl", "anime", "--nolog"])
+		subprocess.run(["scrapy", "crawl", "data", "--nolog"])
 
 	with open('data/data.json') as d:
 		data = json.load(d)
