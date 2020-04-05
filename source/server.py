@@ -34,12 +34,6 @@ def readConfig():
 		config = json.load(f)
 	return config
 
-#Reads queue
-def readQueue():
-	with open("tmp/tmp_queue.json", "r") as f:
-		queue = json.load(f)
-	return queue	
-
 #Checks if 24 hours have passed and resets download values for shows accordingly
 def resetDownloadStatus():
 	config = readConfig()
@@ -51,7 +45,7 @@ def resetDownloadStatus():
 			if (timestamp - float(watchlist[show][1])) >= 86400:
 				config['watchlist'][show][1] = "False"
 	with open("data/config.json", "w") as f:
-		json.dump(config, f, indent=4)		
+		json.dump(config, f, indent=4)
 
 
 # #PDT time for HorribleSubs
@@ -99,6 +93,7 @@ def getData():
 def checkNewAndDownload():
 	with cd("downloader/downloader"):
 		output = subprocess.run(["scrapy", "crawl", "hslatest", "--nolog"])
+		#output = subprocess.run(["scrapy", "crawl", "hslatest"])
 
 #Upon request from client, sends response. Else, keep scraping
 def sendResponse():
@@ -164,7 +159,6 @@ def main():
 	data = getData()
 	schedule = data['timetable']
 	season = data['current_season']
-	queue = {}
 
 	#Correct watchlist by passing through fuzzyset
 	setCorrectWatchlist(season)
@@ -173,7 +167,7 @@ def main():
 
 	config = readConfig()
 	watchlist = config['watchlist']
-	
+
 	#Check if anime is in schedule and value is False(default), download
 	#Set to time-stamp value when episode is downloaded
 	#Reset Time-stamp value to 0 after 24 hours	
@@ -181,30 +175,20 @@ def main():
 		if show in schedule:
 			print("\033[92m[+] {} is airing today!\033[0m".format(show))
 			if watchlist[show][1] == "False":
-				queue[show] = watchlist[show][0]
+				watchlist[show][1] = "-1"
 			else:
 				print("\033[91m[-] {} has already been downloaded! Ignored.\033[0m".format(show))
 
-	#Dump queue to tmp file			
-	with open('tmp/tmp_queue.json', "w") as f:
-		json.dump(queue, f, indent=4)
+	#Shows to be check are marked with -1, dump new updated data
+	with open('data/config.json', 'w') as f:
+		json.dump(config, f, indent=4)
 
 	while True:
-		#Read from tmp_queue.json
-		queue = readQueue()
-		#If empty, exit
-		if not queue:
-			print("\033[92m[*] All done!\033[0m")
-			return
-
-		#Dump queue in tmp file	
-		with open('tmp/tmp_queue.json', 'w+') as f:
-			json.dump(queue, f, indent=4)
-
-		#Download episodes of anime in queue every INTERVAL
+		sendResponse()
+		#Download episodes of anime marked as -1 every INTERVAL
 		if ACTIVE:
 			start = time.monotonic()
-			ACTIVE = False		
+			ACTIVE = False
 			checkNewAndDownload()
 
 		now = time.monotonic()	
