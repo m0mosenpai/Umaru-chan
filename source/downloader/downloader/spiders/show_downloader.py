@@ -18,10 +18,18 @@ def readConfig():
 
 #Reads queue
 def readQueue():
+	if not os.path.isdir("../../tmp"):
+		os.mkdir("../../tmp")
+	if not os.path.isfile("../../tmp/tmp_queue.json"):
+		queue = {}
+		with open("../../tmp/tmp_queue.json", "w+") as f:
+			json.dump(queue, f, indent=4)
+
 	with open('../../tmp/tmp_queue.json', 'r') as f:
 		queue = json.load(f)
 	return queue
 
+#Download episode from episode list
 def download(eplist):
 	if not eplist:
 		print("\033[91m[-] No relevant episode found!\033[0m")
