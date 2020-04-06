@@ -1,4 +1,3 @@
-#A simple script that automatically downloads anime from HorribleSubs based on user's schedule and selected anime of choice.
 import scrapy
 import json
 import os

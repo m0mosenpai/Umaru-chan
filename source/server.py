@@ -118,7 +118,7 @@ def sendResponse():
 
 		#If send-status ping is received, IST and PDT is sent along with activity status
 		if client_msg == "send-status":
-			time = "Local Time: {}	PDT: {} \n".format(local_time, getPDT())
+			time = "Local Time: {}\n".format(local_time)
 			clientsocket.send(bytes(time, 'utf-8'))
 			if LAST_REFRESH != "":
 				clientsocket.send(bytes("Last Refresh: {} \n".format(LAST_REFRESH), 'utf-8'))
