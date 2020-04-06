@@ -11,7 +11,8 @@ Clone this repository using: <br>
 Create a virtual environment and run requirements.txt to install all dependencies<br>
 `pip install -r requirements.txt`<br>
 Run install.py and follow the prompts on screen.<br><br>
-Enable "Automatically download from .torrent files in selected folder" in your torrent client and set the download path to your anime library.(**IMPORTANT**) Leave the client running in the background.
+Enable `Automatically add .torrent files from <FOLDER>` in your torrent client - set the `<FOLDER>` to the `<T_PATH>`(set using -`t/--torrent`. Read usage below for more info) (**IMPORTANT**)(This is a one time setup)<br>
+Leave the torrent client running in the background.
 
 ## Usage
 * `client.py` allows you to set up various default parameters for your program:<br>
