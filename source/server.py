@@ -12,7 +12,7 @@ import colorama
 BUFFSIZE = 2048
 ACTIVE = True
 LAST_REFRESH = ""
-INTERVAL = 10
+INTERVAL = 600 #10 minutes
 
 colorama.init()
 
@@ -162,12 +162,13 @@ def main():
 		json.dump(config, f, indent=4)
 
 	while True:
-		sendResponse()
+		#sendResponse()
 		#Download episodes of anime marked as -1 every INTERVAL
 		if ACTIVE:
 			start = time.monotonic()
 			ACTIVE = False
 			checkNewAndDownload()
+			print("Server is running! [{}]".format(str(datetime.datetime.now())[11:19]))
 
 		now = time.monotonic()	
 		if now - start >= INTERVAL:

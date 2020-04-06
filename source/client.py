@@ -113,8 +113,8 @@ def removeShows(numlist):
 	else:
 		keylist = list(config['watchlist'].keys())
 		for i in numlist:
-			print("\033[93m{}\033[0m".format(keylist[int(i)]))
-			del config['watchlist'][keylist[int(i)]]
+			print("\033[93m{}\033[0m".format(i))
+			del config['watchlist'][i]
 		with open("data/config.json", "w") as f:	
 			json.dump(config, f, indent=4)
 
