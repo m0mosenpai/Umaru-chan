@@ -4,6 +4,7 @@ import ssl
 import colorama
 import json
 import sys
+import os
 
 ssl._create_default_https_context = ssl._create_unverified_context
 colorama.init()
@@ -16,6 +17,9 @@ def readConfig():
 
 #Reads queue
 def readQueue():
+	if not os.path.exists('../../tmp/tmp_queue.json'):
+		with open('../../tmp/tmp_queue.json', 'w') as f:
+			pass
 	with open('../../tmp/tmp_queue.json', 'r') as f:
 		queue = json.load(f)
 	return queue

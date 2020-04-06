@@ -76,7 +76,10 @@ def getData():
 		#Runs scrapy; remove the --nolog option to see logs in server.py output
 		subprocess.run(["scrapy", "crawl", "data", "--nolog"])
 
-	with open('data/data.json') as d:
+	if not os.path.exists('data/data.json'):
+		with open('data/data.json', 'w') as f:
+			pass
+	with open('data/data.json', 'r') as d:
 		data = json.load(d)
 
 	#Dictionary with entire data
@@ -173,6 +176,15 @@ def main():
 		now = time.monotonic()	
 		if now - start >= INTERVAL:
 			ACTIVE = True
+
+		#Close if done for the day
+		shouldQuit = 1
+		for show in watchlist.keys():
+			if watchlist[show][1] == -1:
+				shouldQuit = 0
+		if shouldQuit:
+			print("Done for today!")
+			break
 
 if __name__ == "__main__":
 	try:
