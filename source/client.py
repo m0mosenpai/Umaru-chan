@@ -127,6 +127,8 @@ def downloadShow(showinfo):
 	end = showinfo[2]
 	queue = [aname, start, end]
 
+	if not os.path.isdir("tmp"):
+		os.mkdir("tmp")
 	with open("tmp/tmp_queue.json", 'w+') as f:
 		json.dump(queue, f, indent=4)
 
@@ -206,17 +208,17 @@ def setMAL(username, password):
 
 parser = argparse.ArgumentParser(description="Command-line interface for Umaru-chan.")
 parser.add_argument('-a', '--add', nargs='+', help="Adds shows to the watchlist.", metavar=("NAME"))
-parser.add_argument('-r', '--remove', nargs='+', help="Removes one or more shows from the watchlist.", metavar=("No."))
+parser.add_argument('-r', '--remove', nargs='+', help="Removes one or more shows from the watchlist based on their index value.", metavar=("NUM"), type=int)
 parser.add_argument('-l', '--list', help="Displays current set watchlist.", action='store_true')
 parser.add_argument('-cc', '--clr-config', help="Clears config.", action='store_true')
 parser.add_argument('-cl', '--clr-list', help="Clears watchlist.", action='store_true')
 parser.add_argument('-w', '--watch', help="Watch anime from your local library.", action='store_true')
 parser.add_argument('-p', '--path', nargs=1, help="Sets default watch directory/anime library.", metavar=("PATH"))
 parser.add_argument('-t', '--torrent', nargs=1, help="Sets default download directory for torrent files.", metavar=("DIR"))
-parser.add_argument('-q', '--quality', nargs=1, help="Sets quality of downloads (720p/1080p)", metavar=("QUAL"))
+parser.add_argument('-q', '--quality', nargs=1, help="Sets quality of downloads (480p/720p/1080p)", metavar=("QUAL"))
 parser.add_argument('-m', '--mal-id', nargs=2, help="Sets username and password of MyAnimeList account.", metavar=("USER", "PASS"))
-parser.add_argument('-d', '--download', nargs=3, help="Downloads a full show.", metavar=("SHOW", "START", "END"))
-parser.add_argument('-s', '--status', help="Displays current status.", action='store_true')
+parser.add_argument('-d', '--download', nargs=3, help="Downloads a full show or specified range of episodes.", metavar=("SHOW", "START", "END"))
+parser.add_argument('-s', '--status', help="Displays current client and server status.", action='store_true')
 args = parser.parse_args()
 
 try:

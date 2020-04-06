@@ -171,7 +171,7 @@ def main():
 			start = time.monotonic()
 			ACTIVE = False
 			checkNewAndDownload()
-			print("Server is running! [{}]".format(str(datetime.datetime.now())[11:19]))
+			print("\033[92m[*] Server is running!\033[0m \033[95m[{}]\033[0m".format(str(datetime.datetime.now())[11:19]))
 
 		now = time.monotonic()	
 		if now - start >= INTERVAL:
@@ -183,7 +183,7 @@ def main():
 			if watchlist[show][1] == -1:
 				shouldQuit = 0
 		if shouldQuit:
-			print("Done for today!")
+			print("\033[92m[*] Done for today!\033[0m")
 			break
 
 if __name__ == "__main__":

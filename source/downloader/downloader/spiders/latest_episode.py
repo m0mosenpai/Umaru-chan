@@ -107,10 +107,10 @@ class HSlatestShow(scrapy.Spider):
 			downloadEp(epno, aname, response)
 		except IndexError:
 			#First episode of season, hence page will be empty
-			print("Empty page")
+			print("\033[91m[-] Empty page\033[0m")
 
 		if not checkLatestEp(response):
-			print("Latest episode of {} is still not out".format(ANIME_IN_CHECK))
+			print("[*] Latest episode of \033[95m{}\033[0m] is still not out".format(ANIME_IN_CHECK))
 			#Latest ep is not out, continue checking
 			config = readConfig()
 			config["watchlist"][ANIME_IN_CHECK][1] = "-1"

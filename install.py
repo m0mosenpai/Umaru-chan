@@ -51,8 +51,15 @@ with cd("source"):
 	with cd("data"):
 		print("\033[92m[+] Moved to data directory\033[0m")
 		path = input("Where is the root folder of your anime library? (Enter absolute path):\n")
-
 		torrent = input("Where do you want your downloaded .torrent files to be stored? (Enter absolute path):\n")
+		#Check for a trailing slash based on platform
+		if platform.system() == "Linux":
+			if torrent[-1] != "/":
+				torrent = torrent + "/"
+		if platform.system() == "Windows":
+			if torrent[-1] != "\\":
+				torrent = torrent + "\\"
+
 		print("\033[95mIMPORTANT: Turn on 'Download .torrent files automatically from this folder' in the settings of your Torrent Client and set the folder to the one specified above.\033[0m")
 		
 		q = input("What do you want the default quality of downloads to be? (480p/720p/1080p):\n")
@@ -76,6 +83,7 @@ with cd("source"):
 		config = {"main":{"path":path,"torrent":torrent,"quality":quality,"username":username,"password":password},"watchlist":{}}
 		with open("config.json", "w+") as f:
 			json.dump(config, f, indent=4)
+
 		sleep(1)	
 		print("\033[92m[+] Config created!\033[0m")
 		print("")

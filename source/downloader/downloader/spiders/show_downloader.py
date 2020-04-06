@@ -5,6 +5,7 @@ import colorama
 import json
 import sys
 import os
+import time
 
 ssl._create_default_https_context = ssl._create_unverified_context
 colorama.init()
@@ -17,12 +18,19 @@ def readConfig():
 
 #Reads queue
 def readQueue():
-	if not os.path.exists('../../tmp/tmp_queue.json'):
-		with open('../../tmp/tmp_queue.json', 'w') as f:
-			pass
 	with open('../../tmp/tmp_queue.json', 'r') as f:
 		queue = json.load(f)
 	return queue
+
+def download(eplist):
+	if not eplist:
+		print("\033[91m[-] No relevant episode found!\033[0m")
+		return
+
+	for ep in reversed(eplist):
+		print("[*] Downloading episode: \033[95m{} [{}] - {}\033[0m".format(ep[2], quality, ep[1]))
+		urllib.request.urlretrieve(ep[0], path + ep[1] + " " + str(ep[2]) + " [{}].torrent".format(quality))
+		print("\033[92m[+] Downloaded!\033[0m")
 
 query = ""
 page = 1
@@ -30,6 +38,7 @@ config = readConfig()
 path = config["main"]["torrent"]
 quality = config["main"]["quality"]
 queue = readQueue()
+eplist = []
 
 class DownloadShow(scrapy.Spider):
 	name = 'show'
@@ -50,13 +59,21 @@ class DownloadShow(scrapy.Spider):
 
 	def parse_show(self, response):
 		global page
-		print("\033[93m[*] Page: {}\033[0m".format(page))		
+		global eplist
+
+		print("\033[93m[*] Searching on Page: {}\033[0m".format(page))
+		time.sleep(1)		
 
 		start = response.meta.get('start')
 		end = response.meta.get('end')
 		episodes = response.xpath('//td[@colspan="2"]/a[not(@class)]/@title').extract()
+
+		#When no more episodes are found, download all in urldict
 		if not episodes:
-			print("\033[93m[*] No other relevant episode found.\033[0m")
+			print("\033[93m[*] Adding episodes to queue.\033[0m")
+			time.sleep(2)
+
+			download(eplist)
 			print("\033[92m[*] All done!\033[0m")
 			return
 		
@@ -67,13 +84,12 @@ class DownloadShow(scrapy.Spider):
 			except:
 				print("\033[91m[-] Extra/OVA/Unreadable Episode Found. Ignoring.\033[0m")
 				continue
+
 			if epno <= end and epno >= start:
 				url = "https://nyaa.si"
 				body = response.xpath('//a[contains(text(), "- ' + f'{epno:02}' +'")]/../following-sibling::td[1]/a/@href').extract()
 				url += body[0]
-				print("[*] Found new episode: \033[95m{} [{}] - {}\033[0m".format(epno, quality, aname))
-				urllib.request.urlretrieve(url, path + aname + " " + str(epno) + " [{}].torrent".format(quality))
-				print("\033[92m[+] Downloaded!\033[0m")
+				eplist.append([url, aname, epno])
 
 		page += 1
 		return scrapy.Request(query + str(page), callback = self.parse_show, meta={'start': start, 'end': end})
