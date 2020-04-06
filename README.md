@@ -8,7 +8,7 @@ The program is built particularly for seasonal anime watchers - people who watch
 ## Installation
 Clone this repository using: <br>
 `git clone https://github.com/m0mosenpai/Umaru-chan.git`<br>
-Create a virtual environment and run requirements.txt to install all dependencies<br>
+Create a virtual environment, preferably in Anaconda (pip might cause some issues in some windows machines), and run requirements.txt to install all dependencies<br>
 `pip install -r requirements.txt`<br>
 Run install.py and follow the prompts on screen.<br><br>
 Enable `Automatically add .torrent files from <FOLDER>` in your torrent client - set the `<FOLDER>` to the `<T_PATH>`(set using -`t/--torrent`. Read usage below for more info) (**IMPORTANT**)(This is a one time setup)<br>
