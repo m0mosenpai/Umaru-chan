@@ -5,3 +5,4 @@ requests==2.23.0
 filetype==1.0.6
 colorama==0.4.3
 pytz==2019.3
+Twisted==20.3.0
