@@ -156,9 +156,10 @@ def main():
 	#Check all anime once
 	print("[*] Performing initial check.")
 	time.sleep(1)
-	print("\033[92m[*] Getting you up-to date.\033[0m")
+	print("[*] Getting you up-to date.")
 	checkNewAndDownload("all")
-	
+	time.sleep(2)
+
 	#Clear screen
 	if platform.system() == "Windows":
 		os.system('cls')
@@ -166,6 +167,7 @@ def main():
 		os.system('clear')
 
 	start = time.monotonic()
+	print("\033[95m[{}]\033[0m".format(str(datetime.datetime.now())[11:19]))
 
 	#Check if anime is in schedule and value is False(default), download
 	#Set to time-stamp value when episode is downloaded
@@ -188,7 +190,7 @@ def main():
 		if ACTIVE:
 			start = time.monotonic()
 			ACTIVE = False
-			print("\033[92m[*] Server is running!\033[0m \033[95m[{}]\033[0m".format(str(datetime.datetime.now())[11:19]))
+			print("\033[95m[*] [{}]\033[0m".format(str(datetime.datetime.now())[11:19]))
 			checkNewAndDownload()
 
 		now = time.monotonic()	
