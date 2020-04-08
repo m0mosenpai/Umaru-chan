@@ -8,6 +8,7 @@ import json
 import fuzzyset
 import time
 import colorama
+import platform
 
 BUFFSIZE = 2048
 ACTIVE = False
@@ -153,7 +154,17 @@ def main():
 	watchlist = config['watchlist']
 
 	#Check all anime once
+	print("[*] Performing initial check.")
+	time.sleep(1)
+	print("\033[92m[*] Getting you up-to date.\033[0m")
 	checkNewAndDownload("all")
+	
+	#Clear screen
+	if platform.system() == "Windows":
+		os.system('cls')
+	if platform.system() == "Linux":
+		os.system('clear')
+
 	start = time.monotonic()
 
 	#Check if anime is in schedule and value is False(default), download
@@ -177,8 +188,8 @@ def main():
 		if ACTIVE:
 			start = time.monotonic()
 			ACTIVE = False
-			checkNewAndDownload()
 			print("\033[92m[*] Server is running!\033[0m \033[95m[{}]\033[0m".format(str(datetime.datetime.now())[11:19]))
+			checkNewAndDownload()
 
 		now = time.monotonic()	
 		if now - start >= INTERVAL:
