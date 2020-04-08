@@ -10,7 +10,7 @@ import time
 import colorama
 
 BUFFSIZE = 2048
-ACTIVE = True
+ACTIVE = False
 LAST_REFRESH = ""
 INTERVAL = 600 #10 minutes
 
@@ -86,16 +86,19 @@ def getData():
 	return data
 
 #Calls Scrapy and downloads the episodes
-def checkNewAndDownload():
+def checkNewAndDownload(mode = "normal"):
 	with cd("downloader/downloader"):
 		#output = subprocess.run(["scrapy", "crawl", "hslatest", "--nolog"])
-		output = subprocess.run(["scrapy", "crawl", "hslatest"])
+		if mode == "all":
+			output = subprocess.run(["scrapy", "crawl", "hslatest", "-a", "mode=all"])
+		else:
+			output = subprocess.run(["scrapy", "crawl", "hslatest", "-a", "mode=normal"])
 
 #Upon request from client, sends response. Else, keep scraping
 def sendResponse():
-	global BUFFSIZE	
+	global BUFFSIZE
 	global ACTIVE
-	global LAST_REFRESH	
+	global LAST_REFRESH
 
 	#Opens TCP ipv4 socket on specified port and host
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -148,6 +151,10 @@ def main():
 
 	config = readConfig()
 	watchlist = config['watchlist']
+
+	#Check all anime once
+	checkNewAndDownload("all")
+	start = time.monotonic()
 
 	#Check if anime is in schedule and value is False(default), download
 	#Set to time-stamp value when episode is downloaded

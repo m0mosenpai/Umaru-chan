@@ -33,7 +33,7 @@ def checkLatestEp(response):
 
 	if (now_ts - release_ts) < gap:
 		#Topmost ep is the latest ep
-		print("Topmost ep of {} is the latest ep".format(ANIME_IN_CHECK))
+		print("Topmost ep of {} is the latest ep".format(aname))
 		return True
 	return False
 
@@ -88,16 +88,28 @@ class HSlatestShow(scrapy.Spider):
 		path = config["main"]["torrent"]
 		quality = config["main"]["quality"]
 
-		# Check and download shows marked as -1
-		for show in config["watchlist"]:
-			print("Changing ANIME_IN_CHECK to {}".format(show))
-			ANIME_IN_CHECK = show
-			if config["watchlist"][show][1] == "-1":
+		#check all anime
+		if self.mode == "all":
+			print("In all check mode")
+			for show in config["watchlist"]:
+				print("Changing ANIME_IN_CHECK to {}".format(show))
+				ANIME_IN_CHECK = show
 				head = "https://nyaa.si/?f=0&c=0_0&q=horriblesubs+"
 				tail = "+" + quality + "+" + "mkv" + "&p="
 				name = show.replace(' ', '+')
 				show = head + name + tail
 				yield scrapy.Request(show, callback = self.parse_show)
+		else:
+			# Check and download shows marked as -1
+			for show in config["watchlist"]:
+				print("Changing ANIME_IN_CHECK to {}".format(show))
+				ANIME_IN_CHECK = show
+				if config["watchlist"][show][1] == "-1":
+					head = "https://nyaa.si/?f=0&c=0_0&q=horriblesubs+"
+					tail = "+" + quality + "+" + "mkv" + "&p="
+					name = show.replace(' ', '+')
+					show = head + name + tail
+					yield scrapy.Request(show, callback = self.parse_show)
 
 	def parse_show(self, response):
 		#Get the latest episode of the anime
