@@ -90,9 +90,9 @@ def checkNewAndDownload(mode = "normal"):
 	with cd("downloader/downloader"):
 		#output = subprocess.run(["scrapy", "crawl", "hslatest", "--nolog"])
 		if mode == "all":
-			output = subprocess.run(["scrapy", "crawl", "hslatest", "-a", "mode=all"])
+			output = subprocess.run(["scrapy", "crawl", "hslatest", "-a", "mode=all", "--nolog"])
 		else:
-			output = subprocess.run(["scrapy", "crawl", "hslatest", "-a", "mode=normal"])
+			output = subprocess.run(["scrapy", "crawl", "hslatest", "-a", "mode=normal", "--nolog"])
 
 #Upon request from client, sends response. Else, keep scraping
 def sendResponse():

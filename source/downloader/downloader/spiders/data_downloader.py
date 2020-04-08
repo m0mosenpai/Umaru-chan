@@ -27,7 +27,7 @@ class animeDownloader(scrapy.Spider):
 
 		#Get Schedule for the day
 		schedule = response.xpath('//table[@class="schedule-table"]/tr/td/a/text()').extract()
-		release_time = response.xpath('//table[@class="schedule-table"]/tr/td/text()').extract()  
+		release_time = response.xpath('//table[@class="schedule-table"]/tr/td/text()').extract()
 		items['timetable'] = dict(zip(schedule, release_time))
 		#print('WORKING DIR: ' + os.getcwd())
 		yield items

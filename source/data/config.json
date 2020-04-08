@@ -1,7 +1,7 @@
 {
     "main": {
         "path": "D:\\Anime",
-        "torrent": "D:\\Downloads",
+        "torrent": "D:\\Downloads\\",
         "quality": "1080p",
         "username": "",
         "password": ""
@@ -9,11 +9,15 @@
     "watchlist": {
         "Tower of God": [
             "1",
-            "False"
+            "-1"
         ],
         "Kakushigoto": [
             "1",
             "False"
+        ],
+        "Ahiru no Sora": [
+            "26",
+            "1586354877.3407938"
         ]
     }
 }

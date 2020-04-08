@@ -21,7 +21,6 @@ ANIME_IN_CHECK = ""
 def checkLatestEp(response):
 	latest_ep = response.xpath('//td[@colspan="2"]/a[not(@class)]/@title').extract()[0]
 	aname = (latest_ep[latest_ep.index('] '):latest_ep.index(' -')][2:])
-	print("LatestEpCheck({})".format(aname))
 	gap = 518400 #6 days in seconds
 	try:
 		release_ts = float(response.xpath('//td[@class="text-center"][3]/@data-timestamp').extract()[0])
@@ -128,7 +127,7 @@ class HSlatestShow(scrapy.Spider):
 			print("\033[91m[-] Empty page\033[0m")
 
 		if not checkLatestEp(response):
-			print("[*] Latest episode of \033[95m{}\033[0m] is still not out".format(ANIME_IN_CHECK))
+			print("[*] Latest episode of \033[95m{}\033[0m is still not out. Waiting.".format(ANIME_IN_CHECK))
 			#Latest ep is not out, continue checking
 			config = readConfig()
 			config["watchlist"][ANIME_IN_CHECK][1] = "-1"
