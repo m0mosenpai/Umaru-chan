@@ -21,7 +21,6 @@ ANIME_IN_CHECK = ""
 def checkLatestEp(response):
 	latest_ep = response.xpath('//td[@colspan="2"]/a[not(@class)]/@title').extract()[0]
 	aname = (latest_ep[latest_ep.index('] '):latest_ep.index(' -')][2:])
-	print("LatestEpCheck({})".format(aname))
 	gap = 518400 #6 days in seconds
 	try:
 		release_ts = float(response.xpath('//td[@class="text-center"][3]/@data-timestamp').extract()[0])
@@ -32,8 +31,7 @@ def checkLatestEp(response):
 	now_ts = time.time()
 
 	if (now_ts - release_ts) < gap:
-		#Topmost ep is the latest ep
-		print("Topmost ep of {} is the latest ep".format(ANIME_IN_CHECK))
+		#Topmost ep is the latest 
 		return True
 	return False
 
@@ -90,14 +88,13 @@ class HSlatestShow(scrapy.Spider):
 
 		# Check and download shows marked as -1
 		for show in config["watchlist"]:
-			print("Changing ANIME_IN_CHECK to {}".format(show))
 			ANIME_IN_CHECK = show
 			if config["watchlist"][show][1] == "-1":
 				head = "https://nyaa.si/?f=0&c=0_0&q=horriblesubs+"
 				tail = "+" + quality + "+" + "mkv" + "&p="
 				name = show.replace(' ', '+')
-				show = head + name + tail
-				yield scrapy.Request(show, callback = self.parse_show)
+				query = head + name + tail
+				yield scrapy.Request(query, callback = self.parse_show)
 
 	def parse_show(self, response):
 		#Get the latest episode of the anime
@@ -116,7 +113,7 @@ class HSlatestShow(scrapy.Spider):
 			print("\033[91m[-] Empty page\033[0m")
 
 		if not checkLatestEp(response):
-			print("[*] Latest episode of \033[95m{}\033[0m] is still not out".format(ANIME_IN_CHECK))
+			print("[*] Latest episode of \033[95m{}\033[0m is still not out. Waiting.".format(ANIME_IN_CHECK))
 			#Latest ep is not out, continue checking
 			config = readConfig()
 			config["watchlist"][ANIME_IN_CHECK][1] = "-1"

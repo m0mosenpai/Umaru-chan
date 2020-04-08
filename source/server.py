@@ -88,8 +88,8 @@ def getData():
 #Calls Scrapy and downloads the episodes
 def checkNewAndDownload():
 	with cd("downloader/downloader"):
-		#output = subprocess.run(["scrapy", "crawl", "hslatest", "--nolog"])
-		output = subprocess.run(["scrapy", "crawl", "hslatest"])
+		output = subprocess.run(["scrapy", "crawl", "hslatest", "--nolog"])
+		#output = subprocess.run(["scrapy", "crawl", "hslatest"])
 
 #Upon request from client, sends response. Else, keep scraping
 def sendResponse():
