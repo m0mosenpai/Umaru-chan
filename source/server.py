@@ -89,11 +89,12 @@ def getData():
 #Calls Scrapy and downloads the episodes
 def checkNewAndDownload(mode = "normal"):
 	with cd("downloader/downloader"):
-		#output = subprocess.run(["scrapy", "crawl", "hslatest", "--nolog"])
 		if mode == "all":
 			output = subprocess.run(["scrapy", "crawl", "hslatest", "-a", "mode=all", "--nolog"])
+			#output = subprocess.run(["scrapy", "crawl", "hslatest", "-a", "mode=all"])
 		else:
 			output = subprocess.run(["scrapy", "crawl", "hslatest", "-a", "mode=normal", "--nolog"])
+			#output = subprocess.run(["scrapy", "crawl", "hslatest", "-a", "mode=normal"])
 
 #Upon request from client, sends response. Else, keep scraping
 def sendResponse():
@@ -150,21 +151,16 @@ def main():
 	#Check if the download status of shows needs to be reset
 	resetDownloadStatus()
 
-	config = readConfig()
-	watchlist = config['watchlist']
-
 	#Check all anime once
 	print("[*] Performing initial check.")
 	time.sleep(1)
 	print("[*] Getting you up-to date.")
 	checkNewAndDownload("all")
+	#pdb.set_trace()
 	time.sleep(2)
 
-	#Clear screen
-	if platform.system() == "Windows":
-		os.system('cls')
-	if platform.system() == "Linux":
-		os.system('clear')
+	config = readConfig()
+	watchlist = config['watchlist']
 
 	start = time.monotonic()
 	print("\033[95m[{}]\033[0m".format(str(datetime.datetime.now())[11:19]))
@@ -184,7 +180,8 @@ def main():
 	with open('data/config.json', 'w') as f:
 		json.dump(config, f, indent=4)
 
-	while True:
+	shouldQuit = 0
+	while not shouldQuit:
 		#sendResponse()
 		#Download episodes of anime marked as -1 every INTERVAL
 		if ACTIVE:
@@ -192,6 +189,8 @@ def main():
 			ACTIVE = False
 			print("\033[95m[*] [{}]\033[0m".format(str(datetime.datetime.now())[11:19]))
 			checkNewAndDownload()
+			config = readConfig()
+			watchlist = config['watchlist']
 
 		now = time.monotonic()	
 		if now - start >= INTERVAL:

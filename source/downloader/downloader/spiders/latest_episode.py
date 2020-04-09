@@ -112,10 +112,11 @@ class HSlatestShow(scrapy.Spider):
 			#First episode of season, hence page will be empty
 			print("\033[91m[-] Empty page\033[0m")
 
-		if not checkLatestEp(response):
-			print("[*] Latest episode of \033[95m{}\033[0m is still not out. Waiting.".format(ANIME_IN_CHECK))
-			#Latest ep is not out, continue checking
-			config = readConfig()
-			config["watchlist"][ANIME_IN_CHECK][1] = "-1"
-			with open("../../data/config.json", 'w') as f:
-				json.dump(config, f, indent=4)
+		if self.mode == "normal":
+			if not checkLatestEp(response):
+				print("[*] Latest episode of \033[95m{}\033[0m is still not out. Waiting.".format(ANIME_IN_CHECK))
+				#Latest ep is not out, continue checking
+				config = readConfig()
+				config["watchlist"][ANIME_IN_CHECK][1] = "-1"
+				with open("../../data/config.json", 'w') as f:
+					json.dump(config, f, indent=4)
