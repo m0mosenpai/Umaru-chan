@@ -73,11 +73,11 @@ def downloadEp(epno, aname, response):
 		json.dump(config, f, indent=4)
 
 #Displays ETA message
-def showETAMessage(response):
+def getETAMessage(response):
 	schedule = readSchedule()
 
 	url = response.request.url
-	name = url[url.find("+") + 1:url.find("1080p") - 1].replace("+", " ")
+	name = url[url.find("+") + 1:url.find(quality) - 1].replace("+", " ")
 
 	curr_pdt = getPDT().strftime("%H:%M")
 	curr_min = int(curr_pdt[0:2]) * 60 + int(curr_pdt[3:5])
@@ -93,7 +93,7 @@ def showETAMessage(response):
 	diff_hr = int(diff / 60)
 	diff_min = diff % 60
 
-	print("[*] {}: \033[91mEmpty page\033[0m \033[96m[ETA: {}h{}m]\033[0m".format(name, diff_hr, diff_min))
+	return [name, diff_hr, diff_min]
 
 
 class HSlatestShow(scrapy.Spider):
@@ -133,12 +133,14 @@ class HSlatestShow(scrapy.Spider):
 			downloadEp(epno, aname, response)
 		except IndexError:
 			#First episode of season, hence page will be empty
-			showETAMessage(response)
+			ETA = getETAMessage(response)
+			print("[*] {}: \033[91mEmpty page\033[0m \033[96m[ETA: {}h{}m]\033[0m".format(ETA[0], ETA[1], ETA[2]))
 
 		if self.mode == "normal":
+			#Latest ep is not out, continue checking
 			if not checkLatestEp(response):
-				print("[*] Latest episode of \033[95m{}\033[0m is still not out. Waiting. \033[96m[ETA: {}h{}m]\033[0m".format(ANIME_IN_CHECK, diff_hr, diff_min))
-				#Latest ep is not out, continue checking
+				ETA = getETAMessage(response)
+				print("[*] Latest episode of \033[95m{}\033[0m is still not out. Waiting. \033[96m[ETA: {}h{}m]\033[0m".format(ETA[0], ETA[1], ETA[2]))
 				config = readConfig()
 				config["watchlist"][ANIME_IN_CHECK][1] = "-1"
 				with open("../../data/config.json", 'w') as f:
