@@ -72,6 +72,7 @@ def downloadEp(epno, aname, response):
 	with open("../../data/config.json", 'w') as f:
 		json.dump(config, f, indent=4)
 
+#Displays ETA message
 def showETAMessage(response):
 	schedule = readSchedule()
 
@@ -136,7 +137,7 @@ class HSlatestShow(scrapy.Spider):
 
 		if self.mode == "normal":
 			if not checkLatestEp(response):
-				print("[*] Latest episode of \033[95m{}\033[0m is still not out. Waiting. [Approx {}h{}m]".format(ANIME_IN_CHECK, diff_hr, diff_min))
+				print("[*] Latest episode of \033[95m{}\033[0m is still not out. Waiting. \033[96m[ETA: {}h{}m]\033[0m".format(ANIME_IN_CHECK, diff_hr, diff_min))
 				#Latest ep is not out, continue checking
 				config = readConfig()
 				config["watchlist"][ANIME_IN_CHECK][1] = "-1"
