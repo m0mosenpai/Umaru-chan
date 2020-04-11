@@ -61,7 +61,7 @@ def setCorrectWatchlist(season):
 	#Generating correct watchlist	
 	fset_watchlist = {}
 	for show in watchlist.keys():
-		if fset.get(show)[0][0] >= 0.7:
+		if fset.get(show)[0][0] >= 0.48:
 			fset_watchlist[fset.get(show)[0][1]] = watchlist[show]
 		else:
 			print("\033[91m[-] {} does not seem to be airing this season! Ignoring..\033[0m".format(show))
@@ -187,7 +187,7 @@ def main():
 		if ACTIVE:
 			start = time.monotonic()
 			ACTIVE = False
-			print("\033[95m[*] [{}]\033[0m".format(str(datetime.datetime.now())[11:19]))
+			print("\033[95m[{}]\033[0m".format(str(datetime.datetime.now())[11:19]))
 			checkNewAndDownload()
 			config = readConfig()
 			watchlist = config['watchlist']
