@@ -6,6 +6,7 @@ import json
 import sys
 import os
 import time
+import re
 
 ssl._create_default_https_context = ssl._create_unverified_context
 colorama.init()
@@ -58,7 +59,8 @@ class DownloadShow(scrapy.Spider):
 		aname = queue[0]
 		start = int(queue[1])
 		end = int(queue[2])
-		head = "https://nyaa.si/?f=0&c=0_0&q=horriblesubs+"
+		release = queue[3].replace(' ', '+')
+		head = "https://nyaa.si/?f=0&c=0_0&q=" + release + "+"
 		name = aname.replace(' ', '+')
 		tail = "+" + quality + "+" + "mkv" + "&p="
 		query = head + name + tail
@@ -87,8 +89,11 @@ class DownloadShow(scrapy.Spider):
 		
 		for ep in episodes:
 			try:
-				epno = int(ep[ep.index('- '):ep.index(' [')][2:])
-				aname = ep[ep.index('] '):ep.index(' -')][2:]
+				#aname = ep[ep.index('] '):ep.index(' -')][2:]
+				#epno = int(ep[ep.index('- '):ep.index(' [')][2:])
+				aname = re.split("\]|\)|\[|\(", ep)[2].split('-')[0].replace('_', ' ').strip()
+				epno = int(re.split("\]|\)|\[|\(", ep)[2].split('-')[1].strip())
+
 			except:
 				print("\033[91m[-] Extra/OVA/Unreadable Episode Found. Ignoring.\033[0m")
 				continue

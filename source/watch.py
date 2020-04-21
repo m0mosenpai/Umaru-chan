@@ -28,7 +28,7 @@ def createFileList(PATH):
 	with cd(PATH):
 		print("(In \033[95m{}\033[0m)\n".format(PATH))
 		filedict = {}
-		cnt = 0
+		cnt = 1
 		files = os.listdir()
 		if not files:
 			print("\033[91mDirectory is Empty!\033[0m")
@@ -39,8 +39,14 @@ def createFileList(PATH):
 			print("{}: \033[93m{}\033[0m".format(cnt, file))
 			cnt += 1
 		#Asks user to choose a media file to play.	
-		choice = int(input("\nSelect file/directory [0 - {}]: ".format(len(filedict) - 1)))
-		filename = filedict[choice]
+		choice = int(input("\nSelect file/directory [1 - {}]: ".format(len(filedict))))
+		if choice > len(filedict):
+			print("\033[91mOnly {} items in your directory! - Index out of bounds.\033[0m".format(len(filedict)))
+			exit()
+			return
+		else:
+			filename = filedict[choice]
+
 		#Check if chosen file is a regular file or a directory
 		if os.path.isfile(filename):
 			#Check if the file is a video file or not

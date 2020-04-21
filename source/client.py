@@ -29,7 +29,11 @@ class cd:
 def readConfig():
 	with open('data/config.json', 'r+') as f:
 		config = json.load(f)
-	return config	
+	return config
+
+#Makes quueue for downloadShow
+def makeQueue(aname, start, end, release="horriblesubs"):
+	return [aname, start, end, release]
 
 #Shows the status
 def status():
@@ -85,9 +89,11 @@ def showList():
 	if not watchlist:
 		print("\033[91mYour Watchlist is empty! Add shows using -a/--add <name>!\033[0m")
 	else:
+		watchlist = list(watchlist)
+		watchlist.sort()
 		print("\033[92mYour Watchlist:\033[0m")
 		for i,show in enumerate(watchlist):
-			print("{}:\033[93m {}\033[0m".format(i, show))
+			print("{}:\033[93m {}\033[0m".format(i+1, show))
 
 #Add shows to watchlist
 def addShows(showlist):
@@ -100,6 +106,7 @@ def addShows(showlist):
 		else:
 			config['watchlist'][show[:show.index(":")]] = [show[(show.index(":")+1):]]
 			config['watchlist'][show[:show.index(":")]].append("False")
+
 	with open('data/config.json', 'w') as f:
 		json.dump(config, f, indent=4)	
 
@@ -108,24 +115,43 @@ def addShows(showlist):
 #Deletes selected show from watchlist
 def removeShows(numlist):
 	config = readConfig()
+	#Check if show index is out of bounds
+	for num in numlist:
+		if num > len(config['watchlist']):
+			print("\033[91mThere are only {} shows in your watchlist!\033[0m".format(len(config['watchlist'])))
+			return
+	#Check if watchlist is empty		
 	if not config['watchlist']:
 		print("\033[91mYour Watchlist is empty! Add shows using -a/--add <name>!\033[0m")
+	#Sort and remove
 	else:
 		keylist = list(config['watchlist'].keys())
+		keylist.sort()
 		for i in numlist:
-			print("\033[93m{}\033[0m".format(keylist[int(i)]))
-			del config['watchlist'][keylist[int(i)]]
+			print("\033[93m{}\033[0m".format(keylist[int(i-1)]))
+			del config['watchlist'][keylist[int(i-1)]]
+
 		with open("data/config.json", "w") as f:	
 			json.dump(config, f, indent=4)
-
 		print("The following shows have been deleted from the watchlist")
 
 #Download specified show
 def downloadShow(showinfo):
-	aname = showinfo[0]
-	start = showinfo[1]
-	end = showinfo[2]
-	queue = [aname, start, end]
+	if len(showinfo) < 3:
+		print("\033[91mRequires atleast 3 arguments! [name, start, end]\033[0m")
+		return
+	elif len(showinfo) > 4:
+		print("\033[91mToo many arguments - 3 required [name, start, end], 1 optional [release]\033[0m")
+		return
+	else:
+		aname = showinfo[0]
+		start = showinfo[1]
+		end = showinfo[2]
+		if len(showinfo) == 4:
+			release = showinfo[3]		
+			queue = makeQueue(aname, start, end, release)
+		else:
+			queue = makeQueue(aname, start, end)
 
 	if not os.path.isdir("tmp"):
 		os.mkdir("tmp")
@@ -217,7 +243,7 @@ parser.add_argument('-p', '--path', nargs=1, help="Sets default watch directory/
 parser.add_argument('-t', '--torrent', nargs=1, help="Sets default download directory for torrent files.", metavar=("DIR"))
 parser.add_argument('-q', '--quality', nargs=1, help="Sets quality of downloads (480p/720p/1080p)", metavar=("QUAL"))
 parser.add_argument('-m', '--mal-id', nargs=2, help="Sets username and password of MyAnimeList account.", metavar=("USER", "PASS"))
-parser.add_argument('-d', '--download', nargs=3, help="Downloads a full show or specified range of episodes.", metavar=("SHOW", "START", "END"))
+parser.add_argument('-d', '--download', nargs='+', help="Downloads a full show or specified range of episodes.")
 parser.add_argument('-s', '--status', help="Displays current client and server status.", action='store_true')
 args = parser.parse_args()
 
