@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import mal_update as MAL
 from time import sleep
 import filetype
 import colorama
@@ -74,11 +75,12 @@ def createFileList(PATH):
 	return filename
 
 #calls mal_log.py to update anime
-def updateMAL(filename):
+def updateMAL(user, passwd, filename):
 	#Gets anime name from file name but splitting around () or [] and stripping off white spaces
 	animename = re.split("\]|\)|\[|\(", filename)[2].split('-')[0].strip()
 	print("Updating episode count on MAL...")
-	subprocess.run(["./mal_log.py", animename])
+	MAL.UpdateList(user, passwd, animename)
+	# subprocess.run(["./mal_log.py", animename])
 	print("Done.")
 
 #main function
@@ -95,13 +97,14 @@ def main():
 		exit()
 
 	filename = createFileList(PATH)
+
 	sleep(2)
 	choice = input("Do you want to update episode count on MAL? (y/n): ")
 	if U == "" or P == "":
 		print("\033[91mUsername/Password not set! Run with -m/--mal-id to set one up!\033[0m")
 	else:	
 		if choice == 'y':
-			updateMAL(filename)
+			updateMAL(U, P, filename)
 
 if __name__ == "__main__":	
 	try:
