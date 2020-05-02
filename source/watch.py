@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import mal_update as MAL
 from time import sleep
 import filetype
 import colorama

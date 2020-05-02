@@ -11,12 +11,9 @@ import colorama
 import platform
 import logging
 
-logger = logging.getLogger(__name__)
-def_format = logging.Formatter(fmt="[%(asctime)s][%(levelname)s]:%(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-def_handler = logging.FileHandler("data/serverlog.log")
-def_handler.setLevel(logging.DEBUG)
-def_handler.setFormatter(def_format)
-logger.addHandler(def_handler)
+logging.basicConfig(filename="data/serverlog.log",level=logging.DEBUG,format="[%(asctime)s][%(levelname)s]:%(message)s",
+	datefmt="%Y-%m-%d %H:%M:%S")
+logging.getLogger('scrapy').propagate = False
 
 BUFFSIZE = 2048
 ACTIVE = False
@@ -39,7 +36,7 @@ class cd:
 
 #Reads config file
 def readConfig():
-	logger.info("Attempting to read config.json")
+	logging.info("Attempting to read config.json")
 	with open("data/config.json", 'r') as f:
 		config = json.load(f)
 	return config
@@ -82,7 +79,7 @@ def setCorrectWatchlist(season):
 #Gets scraped data from the data directory
 def getData():
 	#Change to scrapy directory
-	logger.info("Attempting to run data_downloader spider")
+	logging.info("Attempting to run data_downloader spider")
 	with cd("downloader/downloader"):
 		#Runs scrapy; remove the --nolog option to see logs in server.py output
 		subprocess.run(["scrapy", "crawl", "data", "--nolog"])
@@ -149,6 +146,7 @@ def sendResponse():
 
 #Main process
 def main():
+	logging.info("Starting server")
 	global ACTIVE
 	global INTERVAL
 

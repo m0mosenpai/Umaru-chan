@@ -3,20 +3,18 @@ import json
 import os
 import logging
 
-logger = logging.getLogger(__name__)
-def_format = logging.Formatter(fmt="[%(asctime)s][%(levelname)s]:%(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-def_handler = logging.FileHandler("../../data/serverlog.log")
-def_handler.setLevel(logging.DEBUG)
-def_handler.setFormatter(def_format)
-logger.addHandler(def_handler)
+for handler in logging.root.handlers[:]:
+	logging.root.removeHandler(handler)
+
+logging.basicConfig(filename="../../data/serverlog.log",level=logging.DEBUG,format="[%(asctime)s][%(levelname)s]:%(message)s",
+	datefmt="%Y-%m-%d %H:%M:%S")
+logging.getLogger('scrapy').propagate = False
 
 items = {}
 
 class animeDownloader(scrapy.Spider):
 	name = 'data'
-	start_urls = [
-		"https://horriblesubs.info/"
-	]
+	start_urls = ["https://horriblesubs.info/"]
 
 	#Function to parse current season list
 	def parse_season(self, response):

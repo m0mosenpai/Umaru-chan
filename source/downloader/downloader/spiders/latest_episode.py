@@ -8,19 +8,19 @@ import datetime
 import pytz
 import logging
 
-logger = logging.getLogger(__name__)
-def_format = logging.Formatter(fmt="[%(asctime)s][%(levelname)s]:%(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-def_handler = logging.FileHandler("../../data/serverlog.log")
-def_handler.setLevel(logging.DEBUG)
-def_handler.setFormatter(def_format)
-logger.addHandler(def_handler)
+for handler in logging.root.handlers[:]:
+	logging.root.removeHandler(handler)
+
+logging.basicConfig(filename="../../data/serverlog.log",level=logging.DEBUG,format="[%(asctime)s][%(levelname)s]:%(message)s",
+	datefmt="%Y-%m-%d %H:%M:%S")
+logging.getLogger('scrapy').propagate = False
 
 ssl._create_default_https_context = ssl._create_unverified_context
 colorama.init()
 
 links = []
 path = ""
-quality=""
+quality = ""
 DONE = False
 ANIME_IN_CHECK = ""
 
@@ -39,9 +39,9 @@ def checkLatestEp(response):
 
 	if (now_ts - release_ts) < gap:
 		#Topmost ep is the latest ep
-		logger.info("({}) gap = {}, Topmost ep is the latest ep".format(aname, now_ts-release_ts))
+		logging.info("({}) gap = {}, Topmost ep is the latest ep".format(aname, now_ts-release_ts))
 		return True
-	logger.info("({}) gap = {}, Topmost ep is not the latest ep".format(aname, now_ts-release_ts))
+	logging.info("({}) gap = {}, Topmost ep is not the latest ep".format(aname, now_ts-release_ts))
 	return False
 
 #Reads config file
@@ -71,14 +71,14 @@ def downloadEp(epno, aname, response):
 	from_ep = currentep + 1
 	to_ep = int(epno) + 1
 
-	logger.info("({}) Downloading eps {} - {}".format(aname, from_ep, to_ep))
+	logging.info("({}) Downloading eps {} - {}".format(aname, from_ep, to_ep))
 
 	for i in range(from_ep, to_ep): #ep no in config is the last downloaded ep
 		link = "https://nyaa.si"
 		link += response.xpath('//a[contains(text(), "- ' + f'{i:02}' +'")]/../following-sibling::td[1]/a/@href').extract()[0]
 		print("[*] Found new episode: \033[95m{} [{}] - {}\033[0m".format(i, quality, aname))
 		urllib.request.urlretrieve(link, path + aname + str(i) + " [{}].torrent".format(quality))
-		logger.info("({}) Downloaded ep {}".format(aname, i))
+		logging.info("({}) Downloaded ep {}".format(aname, i))
 		print("\033[92m[+] Downloaded!\033[0m")
 
 		#Update config with latest downloaded episode and timestamp
