@@ -1,6 +1,14 @@
 import scrapy
 import json
 import os
+import logging
+
+logger = logging.getLogger(__name__)
+def_format = logging.Formatter(fmt="[%(asctime)s][%(levelname)s]:%(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+def_handler = logging.FileHandler("../../data/serverlog.log")
+def_handler.setLevel(logging.DEBUG)
+def_handler.setFormatter(def_format)
+logger.addHandler(def_handler)
 
 items = {}
 
@@ -20,7 +28,7 @@ class animeDownloader(scrapy.Spider):
 			json.dump(items, f, indent=4)
 		yield items
 
-	#Function to parse schedule and time of shows	
+	#Function to parse schedule and time of shows
 	def parse(self, response):
 		global items
 		# items = ScheduleTimeItem()
