@@ -8,3 +8,4 @@ pytz==2019.3
 Twisted==20.3.0
 PyQt5==5.14.2
 QDarkStyle==2.8.1
+malupdate==0.1
