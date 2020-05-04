@@ -5,3 +5,5 @@ debug.log
 data
 source/data/secrets.py
 tmp
+__init__.py
+downloader/__init__.py
