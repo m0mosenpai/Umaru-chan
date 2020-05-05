@@ -29,7 +29,7 @@ open_files = {}
 #Makes a list of all the anime that need to be updated
 def updateList(filename):
 	toUpdate = input("Update list on MAL? (y/n): ")
-	if toUpdate == 'n':
+	if toUpdate != 'y':
 		return
 
 	print("Preparing to update list")
@@ -100,7 +100,7 @@ try:
 									fname = f_str[f_str.rfind("/") + 1:f_str.find(ff)]
 								elif platform.system() == "Windows":
 									fname = f_str[f_str.rfind("\\") + 1:f_str.find(ff)]
-								
+
 								if p.info['pid'] not in open_files.keys():
 									shouldPrint = True
 									open_files[p.info['pid']] = fname
@@ -122,7 +122,7 @@ try:
 					if p.info['pid'] in open_files.keys():
 						updateList(open_files[p.info['pid']])
 						del open_files[p.info['pid']]
-					
+
 			players = updated_players #Update player process list
 
 		#Print name of files being played
