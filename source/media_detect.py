@@ -15,6 +15,7 @@ players = [] #Store all running media player processes
 
 #Media player Data
 player_processes = ["vlc.exe"]
+open_files = {}
 
 print("Starting media_detect script")
 
@@ -42,7 +43,9 @@ while running:
 					#Detect various file formats
 					for ff in file_formats:
 						if f_str.find(ff) != -1:
-							print(f_str[f_str.rfind("\\") + 1:f_str.find(ff)])
+							fname = f_str[f_str.rfind("\\") + 1:f_str.find(ff)]
+							open_files[p.info['pid']] = fname
+							#print(fname)
 
 		#Detect closing of media player
 		updated_players = []
@@ -52,6 +55,11 @@ while running:
 				updated_players.append(p)
 			else:
 				print("Process with pname {} and pid {} was closed".format(p.info['name'], p.info['pid']))
+				del open_files[p.info['pid']]
 		players = updated_players #Update player process list
+
+	#Print name of files being played
+	for k in open_files.keys():
+		print("[{}]:{}".format(k, open_files[k]))
 
 	#running = 0
