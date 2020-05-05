@@ -75,6 +75,15 @@ with cd("source"):
 			username = input("Username: ")
 			password = getpass.getpass("Password: ")
 
+			autoDetect = input("Umaru-chan supports automatic updating of your watchlist on MAL. Enable it? (y/n): ")
+			if autoDetect == 'y':
+				print("Creating necessary files for media_detect script.")
+				with open("loginData.json", "w+") as f:
+					emptyDict = {}
+					json.dump(emptyDict, f, indent=4)
+				sleep(1)
+				print("\033[91mRun media_detect.py for automatic list updation.\033[0m")
+
 		else:
 			username = ""
 			password = ""
