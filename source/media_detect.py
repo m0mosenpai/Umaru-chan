@@ -27,6 +27,19 @@ shouldPrint = True
 player_processes = ["vlc.exe", "vlc", "totem", "wmplayer.exe"] # List of supported media player processes
 open_files = {}
 
+#Check if username and password exist in config
+def credentialCheck():
+	with open("data/config.json", "r") as f:
+		config = json.load(f)
+	user = config['main']['username']
+	passwd = config['main']['password']
+
+	if user == "" or passwd == "":
+		print("\033[91mUsername/Password not set! Run with -m/--mal-id to set one up!\033[0m")
+		exit()
+	else:
+		return [user, passwd]
+
 # Makes a list of all the anime that need to be updated
 def updateList(filename):
 	toUpdate = input("[*] Update list on MAL? (y/n): ")
@@ -50,13 +63,10 @@ def updateList(filename):
 	if (not loginData) or ((time.time() - float(loginData['access_token'][1])) > float(loginData['expires_in'])):
 		print("[*] Doing a fresh login")
 		# Get login credentials from config
-		with open("data/config.json", "r") as f:
-			config = json.load(f)
-		user = config['main']['username']
-		passwd = config['main']['password']
+		info = credentialCheck()
 
 		# Get loginInfo by logging in and add current timestamp to file
-		loginInfo = mal.User.login(user, passwd)
+		loginInfo = mal.User.login(info[0], info[1])
 		loginInfo['access_token'] = [loginInfo['access_token'], str(time.time())]
 
 		with open("data/loginData.json", "w+") as f:
@@ -65,6 +75,7 @@ def updateList(filename):
 
 	# else, get the existing access_token from the json file
 	else:
+		credentialCheck()
 		print("[*] Grabbing existing Access Token from file")
 		AT = loginData['access_token'][0]
 
