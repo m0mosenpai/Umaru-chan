@@ -24,7 +24,7 @@ players = [] # Store all running media player processes
 shouldPrint = True
 
 # Media player Data
-player_processes = ["vlc.exe", "vlc", "totem", "wmplayer.exe"] # List of supported media player processes
+player_processes = ["vlc.exe", "vlc", "totem", "wmplayer.exe", "Video.UI.exe"] # List of supported media player processes
 open_files = {}
 
 #Check if username and password exist in config
