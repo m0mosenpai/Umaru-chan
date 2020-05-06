@@ -146,7 +146,7 @@ def sendResponse():
 
 #Main process
 def main():
-	logging.info("Starting server")
+	logging.info("\nStarting server")
 	global ACTIVE
 	global INTERVAL
 

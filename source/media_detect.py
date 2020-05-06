@@ -46,10 +46,8 @@ def updateList(filename):
 	with open("data/loginData.json", "r") as f:
 		loginData = json.load(f)
 
-	time_diff = time.time() - float(loginData['access_token'][1])
-
 	# if loginData is empty or it's been "expires_in" seconds (expiration of the access_token), do a fresh login
-	if (not loginData) or (time_diff > float(loginData['expires_in'])):
+	if (not loginData) or ((time.time() - float(loginData['access_token'][1])) > float(loginData['expires_in'])):
 		print("[*] Doing a fresh login")
 		# Get login credentials from config
 		with open("data/config.json", "r") as f:
@@ -70,9 +68,9 @@ def updateList(filename):
 		print("[*] Grabbing existing Access Token from file")
 		AT = loginData['access_token'][0]
 
-	# Get User's watchlist	
+	# Get User's watchlist
 	animeInfo = mal.User.getAnimeList(AT, "watching", ["alternative_titles", "my_list_status"])
-	aniList = []	
+	aniList = []
 
 	for i,item in enumerate(animeInfo['data']):
 		aniList.append({'names': None, "id": ""})
@@ -89,7 +87,7 @@ def updateList(filename):
 	probValues = []
 	fset = fuzzyset.FuzzySet()
 	fset.add(animename)
-	
+
 	# print("{}: {}".format(aniList, len(aniList)))
 	for show in aniList:
 		probList = []
@@ -102,7 +100,7 @@ def updateList(filename):
 				if fuzzyInfo is not None:
 					# print("Fuzzy: {}".format(fuzzyInfo))
 					probList.append(fuzzyInfo[0][0])
-		
+
 		# print("probList: {}".format(probList))
 		# Add 0 probability if probList is empty (fuzzyInfo returned None, so show was never added to probList), hence definitely not this show
 		if not probList:
