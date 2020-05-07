@@ -18,13 +18,18 @@ Process.is_running() - Return whether the current process is running in the curr
 						must be preferred over doing psutil.pid_exists(p.pid).
 """
 # Script Data
-running = 1 # Whether the script should run
-file_formats = [".mkv", ".mp4", ".ogg", ".avi", ".mov", ".wmv", ".mpeg"] #List of supported file formats
+# Whether the script should run
+running = 1
+#List of supported file formats
+with open("data/extensions.json", 'r') as f:
+	file_formats = json.load(f)
 players = [] # Store all running media player processes
 shouldPrint = True
 
 # Media player Data
-player_processes = ["vlc.exe", "vlc", "totem", "wmplayer.exe", "Video.UI.exe"] # List of supported media player processes
+# List of supported media player processes
+with open("data/media_players.json", 'r') as f:
+	player_processes = json.load(f)
 open_files = {}
 
 #Check if username and password exist in config
@@ -134,7 +139,7 @@ def updateList(filename):
 
 		#Update list with previously watched episodes + 1
 		updatedList = mal.User.updateList(AT, toUpdate_ID, ["num_watched_episodes"], [oldVal + 1])
-		print("\033[92m[+]\033[0m \033[93m{}\033[0m \033[92mwas updated!\033[0m \033[95m{} --> {}\033[0m\n".format(toUpdate_name, oldVal, oldVal + 1))
+		print("\033[92m[+]\033[0m \033[93m{}\033[0m \033[92mwas updated!\033[0m \033[96m{} --> {}\033[0m\n".format(toUpdate_name, oldVal, oldVal + 1))
 	else:
 		print("\033[91m[-] This show does not seem to be in your watchlist! Skipping.\033[0m")
 		return
