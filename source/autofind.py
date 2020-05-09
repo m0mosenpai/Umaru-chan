@@ -2,6 +2,9 @@
 import psutil
 import json
 import time
+import colorama
+
+colorama.init()
 
 print("\033[91m[*] INFO: Make sure your media file is running in the media player you want to add.\033[0m")
 print("\033[92m[+] Looking for running media players.\033[0m")
@@ -10,7 +13,10 @@ time.sleep(2)
 #Create a dictionary of processes and the files they have opened
 processDict = {}
 for proc in psutil.process_iter(['pid', 'name', 'username']):
-	processDict[proc] = proc.open_files()
+	try:
+		processDict[proc] = proc.open_files()
+	except:
+		continue
 
 #Get extensions list from extensions.json
 with open("data/extensions.json", "r") as f:
