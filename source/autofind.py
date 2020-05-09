@@ -45,6 +45,5 @@ else:
 	for player in playerList:	
 		print("\033[92m[+] New media player with process name\033[0m \033[95m{}\033[0m \033[92mwas added.\033[0m".format(player))
 
+print("\033[96m[*] If any of the added processes are not media player processes, manually remove them from data/media_players.json.\033[0m")
 print("[*] Done.")
-	
-
