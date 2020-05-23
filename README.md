@@ -37,7 +37,10 @@ From there on, your torrent client will download all the episodes from the .torr
 
 And that's it! To watch your download anime, run `client.py` with `-w/--watch` or if you want to download a show that's not airing this season, use `-d/--download`.<br>
 ### Automatic List Updation
-Umaru-chan also supports automatic media detection and list updation. Run `media_detect.py` and set up MAL login credentials and it'll automatically detect which anime you are watching and update your list when you finish the episode. Most common file formats and media players are supported.
+Umaru-chan also supports automatic media detection and list updation. Run `media_detect.py` and set up MAL login credentials and it'll automatically detect which anime you are watching and update your list when you finish the episode. Most common file formats and media players are supported. Note that it only detects few supported media players by default. (Read below for other unrecognized media players).
+
+### Automatic Media Player Detection
+Open a media file with the player of your choice and run `autofind.py` to automatically detect the player and save it to the list of recognized media players processes. This is useful if a media player is not recognized by `media_detect.py` by default.
 
 As of now, only [HorribleSubs](https://horriblesubs.info/) releases can be downloaded.<br> 
 Future versions may include support for other uploaders.
