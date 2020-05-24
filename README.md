@@ -1,6 +1,5 @@
 # Umaru-chan
-A program to automate anime watching and downloading from [nyaa.si](https://nyaa.si/) based on release schedule. <br>
-![Umaru-chan](https://media.giphy.com/media/GYtblmdLnemlO/giphy.gif)
+A program to automate anime watching and downloading from [nyaa.si](https://nyaa.si/) based on release schedule.
 
 ## Description
 The program is built particularly for seasonal anime watchers - people who watch weekly episodes of new shows every season. If you are not one of those people and just want to automate downloading shows in bulk, use the `-d/--download` parameter (Read below for more info)
