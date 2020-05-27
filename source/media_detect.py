@@ -85,19 +85,27 @@ def updateList(filename):
 		AT = loginData['access_token'][0]
 
 	# Get User's watchlist
-	animeInfo = mal.User.getAnimeList(AT, "watching", ["alternative_titles", "my_list_status"])
+	animeInfo = mal.User.getAnimeList(AT, "watching", ["alternative_titles", "num_episodes", "my_list_status"])
 	aniList = []
 
-	for i,item in enumerate(animeInfo['data']):
-		aniList.append({'names': None, "id": ""})
+	# Iterate through page-wise responses in animeInfo and form one single list with anime name and id
+	for res in animeInfo:
+		# print("Response: {}".format(res))
+		t_aniList = []
+		for i,item in enumerate(res['data']):
+			t_aniList.append({'names': None, "id": "", "episodes": "", "status": ""})
 
-		originalTitle = item['node']['title']
-		engTitle = item['node']['alternative_titles']['en']
-		japTitle = item['node']['alternative_titles']['ja']
-		# Adding original, english, japanese and all other alternate_titles to names list
-		aniList[i]['names'] = [originalTitle, engTitle, japTitle] + [name for name in item['node']['alternative_titles']['synonyms']]
-		# Adding id of show
-		aniList[i]['id'] = str(item['node']['id'])
+			originalTitle = item['node']['title']
+			engTitle = item['node']['alternative_titles']['en']
+			japTitle = item['node']['alternative_titles']['ja']
+			# Adding original, english, japanese and all other alternate_titles to names list
+			t_aniList[i]['names'] = [originalTitle, engTitle, japTitle] + [name for name in item['node']['alternative_titles']['synonyms']]
+			# Adding id of show
+			t_aniList[i]['id'] = str(item['node']['id'])
+			t_aniList[i]['episodes'] = str(item['node']['num_episodes'])
+			t_aniList[i]['status'] = item['node']['my_list_status']['status']
+
+		aniList += t_aniList
 
 	# probDict = {}
 	probValues = []
@@ -130,19 +138,38 @@ def updateList(filename):
 		toUpdate_idx = probValues.index(max(probValues))
 		toUpdate_name = aniList[toUpdate_idx]['names'][0]
 		toUpdate_ID = aniList[toUpdate_idx]['id']
+		toUpdate_Eps = int(aniList[toUpdate_idx]['episodes'])
+		toUpdate_status = aniList[toUpdate_idx]['status']
 		# print("{} -> {}".format(toUpdate_name, toUpdate_ID))
 
 		#Get previously watched episodes from list
-		for show in animeInfo['data']:
-			if show['node']['title'] == toUpdate_name:
-			 	oldVal = int(show['node']['my_list_status']['num_episodes_watched'])
+		for res in animeInfo:
+			for show in res['data']:
+				if show['node']['title'] == toUpdate_name:
+				 	oldVal = int(show['node']['my_list_status']['num_episodes_watched'])
 
 		#Update list with previously watched episodes + 1
-		updatedList = mal.User.updateList(AT, toUpdate_ID, ["num_watched_episodes"], [oldVal + 1])
-		print("\033[92m[+]\033[0m \033[93m{}\033[0m \033[92mwas updated!\033[0m \033[96m{} --> {}\033[0m\n".format(toUpdate_name, oldVal, oldVal + 1))
+		mal.User.updateList(AT, toUpdate_ID, ["num_watched_episodes"], [oldVal + 1])
+		print("\033[92m[+]\033[0m \033[93m{}\033[0m \033[92mwas updated!\033[0m \033[96m{} --> {}\033[0m".format(toUpdate_name, oldVal, oldVal + 1))
+		if (oldVal + 1) == toUpdate_Eps:
+			mal.User.updateList(AT, toUpdate_ID, ["status"], ["completed"])
+			print("\033[92m[+] Anime Completed!\033[0m Status updated: \033[96m{} ---> completed\033[0m".format(toUpdate_status))
+			try:
+				score = int(input("[*] Score? (1-10): "))
+				if score >= 1 and score <= 10:
+					mal.User.updateList(AT, toUpdate_ID, ["score"], [score])
+					print("\033[92m[*] Score updated.\033[0m")
+					print("\033[92m[*] Done.\033[0m")
+				else:
+					print("\033[91m[*] Skipped.\033[0m")
+			except:
+				print("\033[91m[-] Invalid input.\033[0m")
+
 	else:
-		print("\033[91m[-] This show does not seem to be in your watchlist! Skipping.\033[0m")
+		print("\033[91m[-] This show does not seem to be in your watchlist! Skipping.\033[0m\n")
 		return
+
+	print("")
 
 print("[*] Starting media auto-detection script")
 try:
