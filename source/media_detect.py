@@ -153,7 +153,7 @@ def updateList(filename):
 		print("\033[92m[+]\033[0m \033[93m{}\033[0m \033[92mwas updated!\033[0m \033[96m{} --> {}\033[0m".format(toUpdate_name, oldVal, oldVal + 1))
 		if (oldVal + 1) == toUpdate_Eps:
 			mal.User.updateList(AT, toUpdate_ID, ["status"], ["completed"])
-			print("\033[92m[+] Anime Completed!\033[0m Status updated: \033[96m{} ---> completed\033[0m".format(toUpdate_status))
+			print("\033[92m[+] Anime Completed!\033[0m Status updated: \033[96m{} --> completed\033[0m".format(toUpdate_status))
 			try:
 				score = int(input("[*] Score? (1-10): "))
 				if score >= 1 and score <= 10:
