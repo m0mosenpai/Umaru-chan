@@ -38,7 +38,7 @@ def createFileList(PATH):
 			filedict[cnt] = file
 			print("{}: \033[93m{}\033[0m".format(cnt, file))
 			cnt += 1
-		#Asks user to choose a media file to play.	
+		#Asks user to choose a media file to play.
 		choice = int(input("\nSelect file/directory [1 - {}]: ".format(len(filedict))))
 		if choice > len(filedict):
 			print("\033[91mOnly {} items in your directory! - Index out of bounds.\033[0m".format(len(filedict)))
@@ -70,17 +70,8 @@ def createFileList(PATH):
 		else:
 			#Else, invalid file type.
 			print("\033[91mInvalid file/directory.\033[0m")
-	
-	return filename
 
-#calls mal_log.py to update anime
-def updateMAL(user, passwd, filename):
-	#Gets anime name from file name but splitting around () or [] and stripping off white spaces
-	animename = re.split("\]|\)|\[|\(", filename)[2].split('-')[0].strip()
-	print("Updating episode count on MAL...")
-	MAL.UpdateList(user, passwd, animename)
-	# subprocess.run(["./mal_log.py", animename])
-	print("Done.")
+	return filename
 
 #main function
 def main():
@@ -90,22 +81,14 @@ def main():
 		PATH = config['main']['path']
 		U = config['main']['username']
 		P = config['main']['password']
-	#Exits if path not set	
+	#Exits if path not set
 	if PATH == "":
 		print("\033[91mAnime Library not set. Run with -p/--path <PATH> to set one up!\033[0m")
 		exit()
 
 	filename = createFileList(PATH)
 
-	sleep(2)
-	choice = input("Do you want to update episode count on MAL? (y/n): ")
-	if U == "" or P == "":
-		print("\033[91mUsername/Password not set! Run with -m/--mal-id to set one up!\033[0m")
-	else:	
-		if choice == 'y':
-			updateMAL(U, P, filename)
-
-if __name__ == "__main__":	
+if __name__ == "__main__":
 	try:
 		main()
 	except KeyboardInterrupt:

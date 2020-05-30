@@ -7,6 +7,7 @@ import re
 import json
 import time
 import fuzzyset
+import anime_parser as ap
 
 colorama.init()
 
@@ -56,7 +57,10 @@ def updateList(filename):
 	# PARSER HERE - Get Anime name from filename
 	# Using regex as temp. solution (works only for file names following HorribleSubs naming format)
 	try:
-		animename = re.split("\]|\)|\[|\(", filename)[2].split('-')[0].strip()
+		d = ap.Parse(filename)
+		animename = d.getParsedValues()['anime']
+		# print(d.finalList)
+		# animename = re.split("\]|\)|\[|\(", filename)[2].split('-')[0].strip()
 	except:
 		print("\033[91m[-] Unsupported filename format/Not an anime file! Skipping.\033[0m")
 		return
@@ -134,7 +138,8 @@ def updateList(filename):
 		# probDict[show['names'][0]] = str(max(probList))
 		probValues.append(max(probList))
 
-	if max(probValues) >= 0.7:
+	# print(probValues)
+	if max(probValues) >= 0.6:
 		toUpdate_idx = probValues.index(max(probValues))
 		toUpdate_name = aniList[toUpdate_idx]['names'][0]
 		toUpdate_ID = aniList[toUpdate_idx]['id']

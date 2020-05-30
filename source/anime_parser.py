@@ -22,7 +22,7 @@ stuffToRemove = ["_", ",", ";"]
 delimiters =["-"]
 qualities = ["1080p", "1920x1080", "Full HD", "FHD", "FullHD", "720p", "1280x720", "HD", "480p", "640x480", "SD"]
 extList = [".mkv", ".mp4", ".ogg", ".avi", ".mov", ".wmv", ".mpeg"]
-epTokens = ['ep', 'episode', 'eps', 'episodes', 'e', 'E', 'Ep', 'EP', 'EPISODE', 'EPISODES', 'EPS']
+epTokens = ['第', 'ep', 'episode', 'eps', 'episodes', 'e', 'E', 'Ep', 'EP', 'EPISODE', 'EPISODES', 'EPS']
 audioTokens = ["2.0CH", "2CH", "5.1", "5.1CH", "DTS", "DTS-ES", "DTS5.1", "TRUEHD5.1", "AAC", "AACX2", "AACX3",
 			"AACX4", "AC3", "EAC3", "E-AC-3", "FLAC", "FLACX2", "FLACX3", "FLACX4", "LOSSLESS", "MP3", "OGG",
 			"VORBIS", "DUALAUDIO", "DUAL AUDIO"]
@@ -62,7 +62,7 @@ class Parse:
 		# Get final parsed values
 		self.parsedOutput = self.getParsedValues()
 
-	### HELPER TO CLEAN LIST ###	
+	### HELPER TO CLEAN LIST ###
 	# Remove space fillers / info separators
 	def cleanStrings(self, inputList):
 		cleanList = []
@@ -80,7 +80,7 @@ class Parse:
 				# cleanList.append(string.strip(" "))
 		return cleanList
 
-	### MAIN PARSING METHODS ###	
+	### MAIN PARSING METHODS ###
 	# Get extension of media file
 	def removeExtension(self):
 		extension = None
@@ -198,5 +198,12 @@ class Parse:
 		return ""
 
 	def getParsedValues(self):
-		return {"filename": self.filename, "ep": self.epNum, "ext": self.extension, "quality": self.quality,
+		if len(self.finalList) >= 2:
+			uploader = self.finalList[0]
+			anime = self.finalList[1]
+		else:
+			uploader = ""
+			anime = self.finalList[0]
+
+		return {"filename": self.filename, "uploader": uploader, "anime": anime, "ep": self.epNum, "ext": self.extension, "quality": self.quality,
 				"release": self.releaseVer, "source": self.source, "video": self.video, "audio": self.audio}

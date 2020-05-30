@@ -10,7 +10,6 @@ import logging
 colorama.init()
 
 #Global vars
-args = sys.argv
 data = []
 table = []
 headers = ["FIELD", "IDEAL VALUE", "PARSED VALUE"]
@@ -28,6 +27,16 @@ for i in range(len(data)):
 		finalList = d.finalList
 		print("\033[94mTEST #{}\033[0m".format(i))
 		print("FILENAME: \033[93m{}\033[0m".format(pV['filename']))
+		try:
+			idealUp = data[i]["release_group"]
+			table.append(["UPLOADER", "\033[92m{}\033[0m".format(idealUp), "\033[95m{}\033[0m".format(pV['uploader'])])
+		except:
+			table.append(["UPLOADER", "\033[91mNA\033[0m", "\033[95m{}\033[0m".format(pV['uploader'])])
+		try:
+			idealName = data[i]["anime_title"]
+			table.append(["ANIME NAME", "\033[92m{}\033[0m".format(idealName), "\033[95m{}\033[0m".format(pV['anime'])])
+		except:
+			table.append(["ANIME NAME", "\033[91mNA\033[0m", "\033[95m{}\033[0m".format(pV['anime'])])
 		try:
 			idealEp = data[i]["episode_number"]
 			table.append(["EPISODE NUM", "\033[92m{}\033[0m".format(idealEp), "\033[95m{}\033[0m".format(pV['ep'])])
