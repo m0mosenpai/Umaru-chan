@@ -139,7 +139,7 @@ def updateList(filename):
 		probValues.append(max(probList))
 
 	# print(probValues)
-	if max(probValues) >= 0.6:
+	if max(probValues) >= 0.5:
 		toUpdate_idx = probValues.index(max(probValues))
 		toUpdate_name = aniList[toUpdate_idx]['names'][0]
 		toUpdate_ID = aniList[toUpdate_idx]['id']
