@@ -41,9 +41,6 @@ Umaru-chan also supports automatic media detection and list updation. Run `media
 ### Automatic Media Player Detection
 Open a media file with the player of your choice and run `autofind.py` to automatically detect the player and save it to the list of recognized media players processes. This is useful if a media player is not recognized by `media_detect.py` by default.
 
-As of now, only [HorribleSubs](https://horriblesubs.info/) releases can be downloaded.<br> 
-Future versions may include support for other uploaders.
-
 # Authors
 Sarthak Khattar @[m0mosenpai](https://github.com/m0mosenpai) <br>
 Ayush Singh @[prog-butter](https://github.com/prog-butter)
