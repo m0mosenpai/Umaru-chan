@@ -2,7 +2,8 @@
 from tabulate import tabulate
 import sys
 import json
-sys.path.insert(1, "/home/momo/Documents/Programs/Umaru-chan/source")
+# Enter path to Umaru-chan source folder below
+sys.path.insert(1, "/path/to/Umaru-chan/source")
 import anime_parser as ap
 import colorama
 import logging
