@@ -154,15 +154,15 @@ def updateList(filename):
 				 	oldVal = int(show['node']['my_list_status']['num_episodes_watched'])
 
 		#Update list with previously watched episodes + 1
-		mal.User.updateList(AT, toUpdate_ID, ["num_watched_episodes"], [oldVal + 1])
+		mal.User.updateList(AT, toUpdate_ID, {"num_watched_episodes": oldVal + 1})
 		print("\033[92m[+]\033[0m \033[93m{}\033[0m \033[92mwas updated!\033[0m \033[96m{} --> {}\033[0m".format(toUpdate_name, oldVal, oldVal + 1))
 		if (oldVal + 1) == toUpdate_Eps:
-			mal.User.updateList(AT, toUpdate_ID, ["status"], ["completed"])
+			mal.User.updateList(AT, toUpdate_ID, {"status": "completed"})
 			print("\033[92m[+] Anime Completed!\033[0m Status updated: \033[96m{} --> completed\033[0m".format(toUpdate_status))
 			try:
 				score = int(input("[*] Score? (1-10): "))
 				if score >= 1 and score <= 10:
-					mal.User.updateList(AT, toUpdate_ID, ["score"], [score])
+					mal.User.updateList(AT, toUpdate_ID, {"score": score})
 					print("\033[92m[*] Score updated.\033[0m")
 					print("\033[92m[*] Done.\033[0m")
 				else:
