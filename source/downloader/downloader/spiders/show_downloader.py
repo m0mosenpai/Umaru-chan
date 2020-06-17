@@ -7,6 +7,12 @@ import sys
 import os
 import time
 import re
+import pathlib
+# Path to Umaru chan source folder
+path_to_source = str(list(pathlib.Path().resolve().parents)[1])
+# print(path_to_source)
+sys.path.insert(1, path_to_source)
+import anime_parser as ap
 
 ssl._create_default_https_context = ssl._create_unverified_context
 colorama.init()
@@ -62,8 +68,10 @@ class DownloadShow(scrapy.Spider):
 		release = queue[3].replace(' ', '+')
 		head = "https://nyaa.si/?f=0&c=0_0&q=" + release + "+"
 		name = aname.replace(' ', '+')
-		tail = "+" + quality + "+" + "mkv" + "&p="
+		# tail = "+" + quality + "+" + "mkv" + "&p="
+		tail = "+" + "mkv" + "&p="
 		query = head + name + tail
+		# print(query)
 
 		yield scrapy.Request(query, callback = self.parse_show, meta={'start':start, 'end':end})
 
@@ -72,7 +80,7 @@ class DownloadShow(scrapy.Spider):
 		global eplist
 
 		print("\033[93m[*] Searching on Page: {}\033[0m".format(page))
-		time.sleep(1)		
+		time.sleep(1)
 
 		start = response.meta.get('start')
 		end = response.meta.get('end')
@@ -86,19 +94,30 @@ class DownloadShow(scrapy.Spider):
 			download(eplist)
 			print("\033[92m[*] All done!\033[0m")
 			return
-		
+
 		for ep in episodes:
+			global quality
 			try:
-				#aname = ep[ep.index('] '):ep.index(' -')][2:]
-				#epno = int(ep[ep.index('- '):ep.index(' [')][2:])
-				aname = re.split("\]|\)|\[|\(", ep)[2].split('-')[0].replace('_', ' ').strip()
-				epno = int(re.split("\]|\)|\[|\(", ep)[2].split('-')[1].strip())
+				d = ap.Parse(ep)
+				pV = d.getParsedValues()
+				uploader = pV['uploader']
+				qual = pV['quality']
+				aname = None
+				epno = None
+
+				if qual == "":
+					quality = "NA"
+					aname = pV['anime']
+					epno = int(pV['ep'])
+				elif qual == quality:
+					aname = pV['anime']
+					epno = int(pV['ep'])
 
 			except:
 				print("\033[91m[-] Extra/OVA/Unreadable Episode Found. Ignoring.\033[0m")
 				continue
 
-			if epno <= end and epno >= start:
+			if epno != None and epno <= end and epno >= start:
 				url = "https://nyaa.si"
 				body = response.xpath('//a[contains(text(), "- ' + f'{epno:02}' +'")]/../following-sibling::td[1]/a/@href').extract()
 				url += body[0]
