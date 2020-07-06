@@ -26,10 +26,10 @@ ANIME_IN_CHECK = ""
 
 #Return true if latest ep is out, otherwise return false
 def checkLatestEp(response):
-	latest_ep = response.xpath('//td[@colspan="2"]/a[not(@class)]/@title').extract()[0]
-	aname = (latest_ep[latest_ep.index('] '):latest_ep.index(' -')][2:])
 	gap = 518400 #6 days in seconds
 	try:
+		latest_ep = response.xpath('//td[@colspan="2"]/a[not(@class)]/@title').extract()[0]
+		aname = (latest_ep[latest_ep.index('] '):latest_ep.index(' -')][2:])
 		release_ts = float(response.xpath('//td[@class="text-center"][3]/@data-timestamp').extract()[0])
 	except IndexError:
 		#First episode of the season, hence no entry yet
@@ -158,6 +158,6 @@ class HSlatestShow(scrapy.Spider):
 				ETA = getETAMessage(response)
 				print("[*] Latest episode of \033[95m{}\033[0m is still not out. Waiting. \033[96m[ETA: {}h{}m]\033[0m".format(ETA[0], ETA[1], ETA[2]))
 				config = readConfig()
-				config["watchlist"][ANIME_IN_CHECK][1] = "-1"
+				config["watchlist"][ETA[0]][1] = "-1"
 				with open("../../data/config.json", 'w') as f:
 					json.dump(config, f, indent=4)
