@@ -7,6 +7,9 @@ import colorama
 import datetime
 import pytz
 import logging
+import sys
+sys.path.insert(1, "/home/momo/Documents/Programs/Umaru-chan/source")
+import anime_parser as ap
 
 for handler in logging.root.handlers[:]:
 	logging.root.removeHandler(handler)
@@ -141,8 +144,14 @@ class HSlatestShow(scrapy.Spider):
 			latest_ep = response.xpath('//td[@colspan="2"]/a[not(@class)]/@title').extract()[0]
 			magnet_link = response.xpath('//td[@class="text-center"]/a/@href').extract()[1]
 
-			aname = (latest_ep[latest_ep.index('] '):latest_ep.index(' -')][2:])
-			epno = (latest_ep[latest_ep.index('- '):latest_ep.index(' [')][2:])
+			# print("latest_ep: {}".format(latest_ep))
+			# aname = (latest_ep[latest_ep.index('] '):latest_ep.index(' -')][2:])
+			
+			d = ap.Parse(latest_ep)
+			aname = d.getParsedValues()['anime']
+			epno = d.getParsedValues()['ep']
+
+			# epno = (latest_ep[latest_ep.index('- '):latest_ep.index(' [')][2:])
 
 			ANIME_IN_CHECK = aname
 
