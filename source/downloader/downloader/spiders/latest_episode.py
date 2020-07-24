@@ -8,8 +8,8 @@ import datetime
 import pytz
 import logging
 import sys
-sys.path.insert(1, "/home/momo/Documents/Programs/Umaru-chan/source")
-import anime_parser as ap
+import os
+# sys.path.insert(1, "/home/momo/Documents/Programs/Umaru-chan/source")
 
 for handler in logging.root.handlers[:]:
 	logging.root.removeHandler(handler)
@@ -26,6 +26,17 @@ path = ""
 quality = ""
 DONE = False
 ANIME_IN_CHECK = ""
+
+class cd:
+    def __init__(self, newPath):
+        self.newPath = os.path.expanduser(newPath)
+
+    def __enter__(self):
+        self.savedPath = os.getcwd()
+        os.chdir(self.newPath)
+
+    def __exit__(self, etype, value, traceback):
+        os.chdir(self.savedPath)
 
 #Return true if latest ep is out, otherwise return false
 def checkLatestEp(response):
@@ -147,9 +158,12 @@ class HSlatestShow(scrapy.Spider):
 			# print("latest_ep: {}".format(latest_ep))
 			# aname = (latest_ep[latest_ep.index('] '):latest_ep.index(' -')][2:])
 			
-			d = ap.Parse(latest_ep)
-			aname = d.getParsedValues()['anime']
-			epno = d.getParsedValues()['ep']
+			with cd("../../../"):
+				import anime_parser as ap
+
+				d = ap.Parse(latest_ep)
+				aname = d.getParsedValues()['anime']
+				epno = d.getParsedValues()['ep']
 
 			# epno = (latest_ep[latest_ep.index('- '):latest_ep.index(' [')][2:])
 
