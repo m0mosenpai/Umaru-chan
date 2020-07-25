@@ -1,0 +1,16 @@
+{
+  "name": "umaru-gui",
+  "version": "1.0.0",
+  "description": "GUI for Umaru-chan",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "startWithTransparentOption": "electron --enable-transparent-visuals .",
+    "startWithAllOptions": "electron --enable-transparent-visuals --disable-gpu ."
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^9.1.0"
+  }
+}
