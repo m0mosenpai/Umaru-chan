@@ -48,7 +48,7 @@ a:focus {
 
 a:hover {
 	text-decoration: none;
-  color: #403866;
+  color: #1B2F5F;
 }
 
 /*---------------------------------------------*/
@@ -123,6 +123,8 @@ iframe {
   font-size: 16px;
   color: rgb(46, 81, 162);
   line-height: 1.4;
+  animation: fadeIn .5s forwards 5.5s;
+  opacity: 0;
 }
 
 
@@ -171,15 +173,15 @@ iframe {
 
 .login100-form-title {
  
-  /* font-family: Ubuntu-Bold;
+  font-family: Ubuntu-Bold;
   font-size: 30px;
   color:rgb(46, 81, 162);
   line-height: 1.2;
   text-transform: uppercase;
   text-align: center;
 
-  width: 100%; */
-  /* display: block; */
+  width: 100%;
+  display: block;
 }
 
 #logo-svg {
@@ -282,7 +284,15 @@ iframe {
   background-color: #e6e6e6;
   border: 1px solid transparent;
   border-radius: 3px;
+  animation: fadeIn .5s forwards 5s;
+  opacity: 0;
 }
+
+/* @keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+} */
 
 
 /*---------------------------------------------*/
@@ -367,6 +377,14 @@ iframe {
   position: relative;
   padding-left: 26px;
   cursor: pointer;
+  animation: fadeIn .5s forwards 5.5s;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
 }
 
 .label-checkbox100::before {
@@ -438,6 +456,8 @@ iframe {
   -o-transition: all 0.4s;
   -moz-transition: all 0.4s;
   transition: all 0.4s;
+  animation: fadeIn .5s forwards 6s;
+  opacity: 0;
 }
 
 .login100-form-btn:hover {
