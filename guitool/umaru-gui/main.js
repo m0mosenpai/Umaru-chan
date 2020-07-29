@@ -1,5 +1,6 @@
 const electron = require('electron')
 const { app, BrowserWindow } = require('electron')
+const path = require('path')
 
 let loadingScreen;
 // Creates the loading window of the application
@@ -18,13 +19,15 @@ const createLoadingScreen = () => {
     );
     loadingScreen.setResizable(false);
     loadingScreen.loadURL(
-        'file://${__dirname}/loading/loading.html'
+        `file://${__dirname}/loading/loading.html`
     );
     loadingScreen.on('closed', () => (loadingScreen = null));
     loadingScreen.webContents.on('did-finish-load', () => {
         loadingScreen.show();
     });
 };
+
+const globalShortcut = electron.globalShortcut
 
 // Creates the main window of the application
 function createWindow() {
@@ -36,11 +39,24 @@ function createWindow() {
             nodeIntegration: true
         },
         show: false
-    })
+    });
+
+    const loginWin = new BrowserWindow({
+        width: 800,
+        height: 600,
+        parent: win,
+        frame: false,
+        //modal: true,
+        show: false
+    });
 
     // and load the index.html of the app.
-    win.loadFile('index.html')
+    win.loadFile('index.html');
     win.maximize();
+
+    // load the login.html for the login screen
+    loginWin.loadURL(`file://${__dirname}/login/index.html`);
+    loginWin.setResizable(false);
 
     // Keep waiting for the main windows to load
     win.webContents.on('did-finish-load', () => {
@@ -48,7 +64,9 @@ function createWindow() {
         if (loadingScreen) {
             loadingScreen.close();
         }
-        win.show();
+
+        win.hide();
+        loginWin.show();
     })
 }
 
