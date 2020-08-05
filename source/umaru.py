@@ -10,6 +10,9 @@ import json
 import colorama
 import platform
 
+import server
+import watch
+
 BUFFSIZE = 2048
 colorama.init()
 
@@ -232,7 +235,25 @@ def setMAL(username, password):
 	print("\033[92mMAL Login ID set! Check secret.py.\033[0m")
 	print("\033[92mAuto list-updation is on. Don't forget to add anime to your 'Watching' list on MAL!\033[0m")
 
+# Runs server
+def execute():
+	try:
+		config = readConfig()
+		if config["main"]["torrent"] == "":
+			print("\033[91mTorrent download directory not set! Set by running client.py with -t/--torrent\033[0m")
+		elif config["main"]["quality"] == "":
+			print("\033[91mDownload quality not set! Set by running client.py with -q/--quality\033[0m")
+		elif not config["watchlist"]:
+			print("\033[91mWatchlist is empty! Add shows by running client.py with -a/--add option\033[0m")
+		else:
+			server.main()
+
+	except KeyboardInterrupt:
+		print("\n\033[91mKeyboard Interrupt Detected. Exiting.\033[0m")
+
+# def main():
 parser = argparse.ArgumentParser(description="Command-line interface for Umaru-chan.")
+parser.add_argument('-e', '--execute', help="Starts main program.", action='store_true')
 parser.add_argument('-a', '--add', nargs='+', help="Adds shows to the watchlist.", metavar=("NAME"))
 parser.add_argument('-r', '--remove', nargs='+', help="Removes one or more shows from the watchlist based on their index value.", metavar=("NUM"), type=int)
 parser.add_argument('-l', '--list', help="Displays current set watchlist.", action='store_true')
@@ -246,10 +267,12 @@ parser.add_argument('-m', '--mal-id', nargs=2, help="Sets username and password 
 parser.add_argument('-d', '--download', nargs='+', help="Downloads a full show or specified range of episodes.")
 parser.add_argument('-s', '--status', help="Displays current client and server status.", action='store_true')
 args = parser.parse_args()
+# print(args)
 
 try:
 	if args.watch:	
-		exec(open('watch.py').read())
+		# exec(open('watch.py').read())
+		watch.main()
 	elif args.path != None:
 		setPATH(args.path[0])
 	elif args.torrent != None:
@@ -272,6 +295,8 @@ try:
 		clearList()
 	elif args.status:
 		status()
+	elif args.execute:
+		execute()
 	else:
 		print("\033[91mAtleast one argument is required!\033[0m")
 		parser.print_help()
@@ -281,3 +306,6 @@ except KeyboardInterrupt:
 
 except json.decoder.JSONDecodeError:
 	print("\033[91mConfig file got corrupted! Try -cl/--clr-list to reset watchlist or -cc/clr-config to reset config if the former doesn't work.\033[0m")
+
+# if __name__ == "__main__":
+# 	main()

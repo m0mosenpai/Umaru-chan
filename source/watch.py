@@ -75,21 +75,22 @@ def createFileList(PATH):
 
 #main function
 def main():
-	#Reads PATH from path.txt
-	with open('data/config.json', 'r+') as f:
-		config = json.load(f)
-		PATH = config['main']['path']
-		U = config['main']['username']
-		P = config['main']['password']
-	#Exits if path not set
-	if PATH == "":
-		print("\033[91mAnime Library not set. Run with -p/--path <PATH> to set one up!\033[0m")
-		exit()
-
-	filename = createFileList(PATH)
-
-if __name__ == "__main__":
 	try:
-		main()
+		#Reads PATH from path.txt
+		with open('data/config.json', 'r+') as f:
+			config = json.load(f)
+			PATH = config['main']['path']
+			U = config['main']['username']
+			P = config['main']['password']
+		#Exits if path not set
+		if PATH == "":
+			print("\033[91mAnime Library not set. Run with -p/--path <PATH> to set one up!\033[0m")
+			exit()
+
+		filename = createFileList(PATH)
+
 	except KeyboardInterrupt:
 		print("\n\033[91mKeyboard Interrupt Detected. Exiting.\033[0m")
+
+if __name__ == "__main__":
+	main()
