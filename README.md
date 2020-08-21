@@ -14,7 +14,7 @@ Enable `Automatically add .torrent files from <FOLDER>` in your torrent client -
 Leave the torrent client running in the background.
 
 ## Usage
-* `client.py` allows you to set up various default parameters for your program:<br>
+* `umaru.py` allows you to set up various default parameters for your program:<br>
   * `-p/--path <PATH>` - Default anime storage libarary (Where you store all your anime files)
   * `-t/--torrent <T_PATH>` - Default download directory for .torrent files (This is where .torrent files will be downloaded)
   * `-q/--quality <QUALITY>` - Sets download quality for all episodes.(480p/ 720p/ 1080p)
@@ -27,14 +27,15 @@ Leave the torrent client running in the background.
   * __**__`-m/--mal-id <USER> <PASS>` - Sets MyAnimeList user and pass for automated list updation.
   * `-w/--watch` - Watch anime in your set PATH (from `-p`)
   * `-d/--download <START> <END>` - Download any anime in bulk in range START-END from nyaa/HS (This is to download any show separately if you don't care/don't watch shows regularly on a weekly basis every season)
+  * `-e/--execute` - Runs the main scraper/server which downloads the anime.
   
   ** __Password is stored locally in plaintext form.__
   
-* Run `server.py` once a day (or set it up to run on startup) and it will automatically download the .torrent files based on release schedule and your watchlist, and store them in T_PATH (Set up using `-t/--torrent` parameter in `client.py`). On days when none of the shows in your watchlist air, it will simply exit.<br>
+* Run `umaru.py -e` once a day (or set it up to run on startup) and it will automatically download the .torrent files based on release schedule and your watchlist, and store them in T_PATH (Set up using `-t/--torrent` parameter). On days when none of the shows in your watchlist air, it will simply exit.<br>
 From there on, your torrent client will download all the episodes from the .torrent files.<br><br>
 **IMPORTANT**: Make sure the download directory set in the torrent client is same as the PATH set using `-p/--path` (PATH to your anime library)
 
-And that's it! To watch your download anime, run `client.py` with `-w/--watch` or if you want to download a show that's not airing this season, use `-d/--download`.<br>
+And that's it! To watch your download anime, run `umaru.py` with `-w/--watch` or if you want to download a show that's not airing this season, use `-d/--download`.<br>
 ### Automatic List Updation
 Umaru-chan also supports automatic media detection and list updation. Run `media_detect.py` and set up MAL login credentials and it'll automatically detect which anime you are watching and update your list when you finish the episode. Most common file formats and media players are supported. Note that it only detects few supported media players by default. (Read below for other unrecognized media players).
 
