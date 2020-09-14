@@ -15,6 +15,8 @@ Run install.py and follow the prompts on screen.<br><br>
 Enable `Automatically add .torrent files from <FOLDER>` in your torrent client - set the `<FOLDER>` to the `<T_PATH>`(set using -`t/--torrent`. Read usage below for more info) (**IMPORTANT**)(This is a one time setup)<br>
 Leave the torrent client running in the background.
 
+![img](https://i.imgur.com/oniK2K9.png)
+
 ## Usage
 * `umaru.py` allows you to set up various default parameters for your program:<br>
   * `-p/--path <PATH>` - Default anime storage libarary (Where you store all your anime files)
@@ -31,11 +33,16 @@ Leave the torrent client running in the background.
   * `-d/--download <START> <END>` - Download any anime in bulk in range START-END from nyaa/HS (This is to download any show separately if you don't care/don't watch shows regularly on a weekly basis every season)
   * `-e/--execute` - Runs the main scraper/server which downloads the anime.
   
-  ** __Password is stored locally in plaintext form.__
+  ** __Password is stored locally in plaintext form.__ <br>
+  
+  ![img](https://i.imgur.com/rPNlb1k.png)
+  
   
 * Run `umaru.py -e` once a day (or set it up to run on startup) and it will automatically download the .torrent files based on release schedule and your watchlist, and store them in T_PATH (Set up using `-t/--torrent` parameter). On days when none of the shows in your watchlist air, it will simply exit.<br>
 From there on, your torrent client will download all the episodes from the .torrent files.<br><br>
 **IMPORTANT**: Make sure the download directory set in the torrent client is same as the PATH set using `-p/--path` (PATH to your anime library)
+
+
 
 And that's it! To watch your download anime, run `umaru.py` with `-w/--watch` or if you want to download a show that's not airing this season, use `-d/--download`.<br>
 ### Automatic List Updation
