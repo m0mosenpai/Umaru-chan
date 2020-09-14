@@ -42,7 +42,7 @@ Leave the torrent client running in the background.
 From there on, your torrent client will download all the episodes from the .torrent files.<br><br>
 **IMPORTANT**: Make sure the download directory set in the torrent client is same as the PATH set using `-p/--path` (PATH to your anime library)
 
-
+![gif](media/umaru_downloading.gif)
 
 And that's it! To watch your download anime, run `umaru.py` with `-w/--watch` or if you want to download a show that's not airing this season, use `-d/--download`.<br>
 ### Automatic List Updation
