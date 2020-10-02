@@ -1,7 +1,8 @@
 <b>*** This project was made with the intent of learning and by no means promotes piracy or illegal distribution of copyrighted content. We wanted to learn as well as have fun/ be motivated while doing so and anime was just one of the things we were passionate about and so, wanted to make something related to it. ***</b>
 
-# Umaru-chan
-A program to automate anime watching and downloading from [nyaa.si](https://nyaa.si/) based on release schedule.
+# [BROKEN] Umaru-chan
+A program to automate anime watching and downloading from [nyaa.si](https://nyaa.si/) based on release schedule. <br>
+*The program scraped Schedule and Seasonal data from HorribleSubs and since the website has shutdown, part of the code has to be re-written. This will take some time and hopefully, we can make the program more future-proof this time.*
 
 ## Description
 The program is built particularly for seasonal anime watchers - people who watch weekly episodes of new shows every season. If you are not one of those people and just want to automate downloading shows in bulk, use the `-d/--download` parameter (Read below for more info)
