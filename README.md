@@ -57,5 +57,7 @@ Open a media file with the player of your choice and run `autofind.py` to automa
 Sarthak Khattar @[m0mosenpai](https://github.com/m0mosenpai) <br>
 Ayush Singh @[prog-butter](https://github.com/prog-butter)
 
+Umaru-Chan is now dead
+
 # License
 MIT
