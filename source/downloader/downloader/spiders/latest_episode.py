@@ -142,7 +142,7 @@ class HSlatestShow(scrapy.Spider):
 
 		for show in watchlist:
 			ANIME_IN_CHECK = show
-			head = "https://nyaa.si/?f=0&c=0_0&q=horriblesubs+"
+			head = "https://nyaa.si/?f=0&c=0_0&q=subsplease+"
 			tail = "+" + quality + "+" + "mkv" + "&p="
 			name = show.replace(' ', '+')
 			if self.mode == "all" or watchlist[show][1] == "-1":
@@ -157,7 +157,7 @@ class HSlatestShow(scrapy.Spider):
 
 			# print("latest_ep: {}".format(latest_ep))
 			# aname = (latest_ep[latest_ep.index('] '):latest_ep.index(' -')][2:])
-			
+
 			with cd("../../../"):
 				import anime_parser as ap
 

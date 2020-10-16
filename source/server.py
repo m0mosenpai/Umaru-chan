@@ -76,23 +76,6 @@ def setCorrectWatchlist(season):
 	with open('data/config.json', 'w') as f:
 		json.dump(config, f, indent=4)
 
-#Gets scraped data from the data directory
-def getData():
-	#Change to scrapy directory
-	logging.info("Attempting to run data_downloader spider")
-	with cd("downloader/downloader"):
-		#Runs scrapy; remove the --nolog option to see logs in server.py output
-		subprocess.run(["scrapy", "crawl", "data", "--nolog"])
-
-	if not os.path.exists('data/data.json'):
-		with open('data/data.json', 'w') as f:
-			pass
-	with open('data/data.json', 'r') as d:
-		data = json.load(d)
-
-	#Dictionary with entire data
-	return data
-
 #Calls Scrapy and downloads the episodes
 def checkNewAndDownload(mode = "normal"):
 	with cd("downloader/downloader"):
@@ -144,18 +127,23 @@ def sendResponse():
 				clientsocket.send(bytes("All done for the day! \n", 'utf-8'))
 	s.close()
 
+# Convert name of day to a number
+dayMapping = {
+	"monday": 0,
+	"tuesday": 1,
+	"wednesday": 2,
+	"thursday": 3,
+	"friday": 4,
+	"saturday": 5,
+	"sunday": 6
+}
+
 #Main process
 def main():
 	logging.info("\nStarting server")
 	global ACTIVE
 	global INTERVAL
 
-	data = getData()
-	schedule = data['timetable']
-	season = data['current_season']
-
-	#Correct watchlist by passing through fuzzyset
-	setCorrectWatchlist(season)
 	#Check if the download status of shows needs to be reset
 	resetDownloadStatus()
 
@@ -173,11 +161,12 @@ def main():
 	start = time.monotonic()
 	print("\033[95m[{}]\033[0m".format(str(datetime.datetime.now())[11:19]))
 
-	#Check if anime is in schedule and value is False(default), download
+	day = dayMapping[datetime.datetime.today().strftime("%A").lower()]
+
+	#Check if anime's airing day is today (local system time) and value is False(default), download
 	#Set to time-stamp value when episode is downloaded
-	#Reset Time-stamp value to 0 after 24 hours
 	for show in watchlist.keys():
-		if show in schedule:
+		if watchlist[show][2][0] == day:
 			print("\033[92m[+] {} is airing today!\033[0m".format(show))
 			if watchlist[show][1] == "False":
 				watchlist[show][1] = "-1"

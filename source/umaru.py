@@ -9,6 +9,7 @@ import argparse
 import json
 import colorama
 import platform
+import malupdate as mal
 
 import server
 import watch
@@ -98,20 +99,53 @@ def showList():
 		for i,show in enumerate(watchlist):
 			print("{}:\033[93m {}\033[0m".format(i+1, show))
 
+# Convert name of day to a number
+dayMapping = {
+	"monday": 0,
+	"tuesday": 1,
+	"wednesday": 2,
+	"thursday": 3,
+	"friday": 4,
+	"saturday": 5,
+	"sunday": 6
+}
+
 #Add shows to watchlist
 def addShows(showlist):
 	config = readConfig()
+
+	#TODO: HANDLE FRESH LOGIN
+	at = mal.User.login(config['main']['username'], config['main']['password'])['access_token']
+
 	for show in showlist:
+		print(show[:show.index(":")])
+		#Get broadcast time of show from MAL
+		if show.find(":") == -1:
+			res = mal.Anime.search(at, show, ["broadcast"])
+		else:
+			res = mal.Anime.search(at, show[:show.index(":")], ["broadcast"])
+
+		day = dayMapping[res['data'][0]['node']['broadcast']['day_of_the_week']]
+		time = res['data'][0]['node']['broadcast']['start_time']
+		time = int(time.replace(":", ""))
+		#Converting day from JST to IST
+		if(time <= 330):
+			day = (day + 6) % 7
+
+		#TODO: Converting time from JST to IST
+
 		#Takes show name from the argument before the ":" and the latest ep number after the ":"
 		if show.find(":") == -1:
 			config['watchlist'][show] = ["0"]
 			config['watchlist'][show].append("False")
+			config['watchlist'][show].append([day, time])
 		else:
 			config['watchlist'][show[:show.index(":")]] = [show[(show.index(":")+1):]]
 			config['watchlist'][show[:show.index(":")]].append("False")
+			config['watchlist'][show[:show.index(":")]].append([day, time])
 
 	with open('data/config.json', 'w') as f:
-		json.dump(config, f, indent=4)	
+		json.dump(config, f, indent=4)
 
 	print("\033[92mShows added succesfully! Use -l/--list to see your watchlist.\033[0m")
 
@@ -123,7 +157,7 @@ def removeShows(numlist):
 		if num > len(config['watchlist']):
 			print("\033[91mThere are only {} shows in your watchlist!\033[0m".format(len(config['watchlist'])))
 			return
-	#Check if watchlist is empty		
+	#Check if watchlist is empty
 	if not config['watchlist']:
 		print("\033[91mYour Watchlist is empty! Add shows using -a/--add <name>!\033[0m")
 	#Sort and remove
@@ -134,7 +168,7 @@ def removeShows(numlist):
 			print("\033[93m{}\033[0m".format(keylist[int(i-1)]))
 			del config['watchlist'][keylist[int(i-1)]]
 
-		with open("data/config.json", "w") as f:	
+		with open("data/config.json", "w") as f:
 			json.dump(config, f, indent=4)
 		print("The following shows have been deleted from the watchlist")
 
@@ -151,7 +185,7 @@ def downloadShow(showinfo):
 		start = showinfo[1]
 		end = showinfo[2]
 		if len(showinfo) == 4:
-			release = showinfo[3]		
+			release = showinfo[3]
 			queue = makeQueue(aname, start, end, release)
 		else:
 			queue = makeQueue(aname, start, end)
@@ -166,7 +200,7 @@ def downloadShow(showinfo):
 		print("\033[91mTorrent download directory not set! Set by running client.py with -t/--torrent\033[0m")
 	elif config["main"]["quality"] == "":
 		print("\033[91mDownload quality not set! Set by running client.py with -q/--quality\033[0m")
-	else:	
+	else:
 		with cd("downloader/downloader"):
 			subprocess.run(["scrapy", "crawl", "show", "--nolog"])
 
@@ -194,7 +228,7 @@ def setPATH(PATH):
 	config['main']['path'] = PATH
 	with open('data/config.json', 'w') as f:
 		json.dump(config, f, indent=4)
-	
+
 	print("\033[92mDefault anime watching directory set!\033[0m")
 
 #Sets path for downloading torrent files
@@ -212,7 +246,7 @@ def setTorrentPATH(PATH):
 	config['main']['torrent'] = PATH
 	with open('data/config.json', 'w') as f:
 		json.dump(config, f, indent=4)
-	
+
 	print("\033[92mDefault download directory for torrent files set!\033[0m")
 
 #Sets quality for downloads
@@ -231,7 +265,7 @@ def setMAL(username, password):
 	config['main']['password'] = password
 	with open('data/config.json', 'w') as f:
 		json.dump(config, f, indent=4)
-	
+
 	print("\033[92mMAL Login ID set! Check secret.py.\033[0m")
 	print("\033[92mAuto list-updation is on. Don't forget to add anime to your 'Watching' list on MAL!\033[0m")
 
@@ -270,7 +304,7 @@ args = parser.parse_args()
 # print(args)
 
 try:
-	if args.watch:	
+	if args.watch:
 		# exec(open('watch.py').read())
 		watch.main()
 	elif args.path != None:
