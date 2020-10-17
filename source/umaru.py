@@ -118,7 +118,6 @@ def addShows(showlist):
 	at = mal.User.login(config['main']['username'], config['main']['password'])['access_token']
 
 	for show in showlist:
-		print(show[:show.index(":")])
 		#Get broadcast time of show from MAL
 		if show.find(":") == -1:
 			res = mal.Anime.search(at, show, ["broadcast"])
