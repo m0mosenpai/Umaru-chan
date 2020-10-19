@@ -10,6 +10,7 @@ import json
 import colorama
 import platform
 import malupdate as mal
+import base64
 
 import server
 import watch
@@ -110,11 +111,40 @@ dayMapping = {
 	"sunday": 6
 }
 
+def getDayTimeAlt(at, show):
+	#Get broadcast time of show from MAL
+	res = mal.Anime.search(at, show, ["broadcast"])
+
+	day = dayMapping[res['data'][0]['node']['broadcast']['day_of_the_week']]
+	time = res['data'][0]['node']['broadcast']['start_time']
+	time = int(time.replace(":", ""))
+	#Converting day from JST to IST
+	if(time <= 330):
+		day = (day + 6) % 7
+
+	#Converting time from JST to IST
+	hr = int(time / 100)
+	mi = time % 100
+
+	if mi < 30:
+		hr = (hr + 20) % 24
+	else:
+		hr = (hr + 21) % 24
+
+	mi = (mi + 30) % 60
+
+	time = hr * 100 + mi
+
+	#Get list of alternative titles
+	alt_names = mal.Anime.search(at, show, ["alternative_titles"])['data'][0]['node']['alternative_titles']['synonyms']
+
+	return day, time, alt_names
+
 #Correct watchlist keys
 def fixWatchlist():
 	config = readConfig()
 
-	at = mal.User.login(config['main']['username'], config['main']['password'])['access_token']
+	at = mal.User.login(config['main']['username'], base64.b64decode(bytes(config['main']['password'], "utf-8").decode("utf-8")).decode("utf-8"))['access_token']
 
 	#Add alternative titles key
 	# 0 - Last downloaded episode number
@@ -123,10 +153,24 @@ def fixWatchlist():
 	# 3 - alternative titles
 
 	for show in config['watchlist']:
-		if len(config['watchlist'][show]) == 3:
-			#Get list of alternative titles
-			alt_names = mal.Anime.search(at, show, ["alternative_titles"])['data'][0]['node']['alternative_titles']['synonyms']
+		#Get broadcast time of show from MAL
+		day, time, alt_names = getDayTimeAlt(at, show)
+
+		if len(config['watchlist'][show]) == 2:
+			#Append
+			config['watchlist'][show].append([day, time])
 			config['watchlist'][show].append(alt_names)
+
+		elif len(config['watchlist'][show]) == 3:
+			#Update
+			config['watchlist'][show][2] = [day, time]
+			#Append
+			config['watchlist'][show].append(alt_names)
+
+		elif len(config['watchlist'][show]) == 4:
+			#Update
+			config['watchlist'][show][2] = [day, time]
+			config['watchlist'][show][3] = alt_names
 
 	with open('data/config.json', 'w') as f:
 		json.dump(config, f, indent=4)
@@ -137,7 +181,7 @@ def fixWatchlist():
 def addShows(showlist):
 	config = readConfig()
 
-	at = mal.User.login(config['main']['username'], config['main']['password'])['access_token']
+	at = mal.User.login(config['main']['username'], base64.b64decode(bytes(config['main']['password'], "utf-8").decode("utf-8")).decode("utf-8"))['access_token']
 
 	for show in showlist:
 		#Takes show name from the argument before the ":" and the latest ep number after the ":"
@@ -148,19 +192,7 @@ def addShows(showlist):
 			config['watchlist'][show] = ["0"]
 
 		#Get broadcast time of show from MAL
-		res = mal.Anime.search(at, show, ["broadcast"])
-
-		day = dayMapping[res['data'][0]['node']['broadcast']['day_of_the_week']]
-		time = res['data'][0]['node']['broadcast']['start_time']
-		time = int(time.replace(":", ""))
-		#Converting day from JST to IST
-		if(time <= 330):
-			day = (day + 6) % 7
-
-		#TODO: Converting time from JST to IST
-
-		#Get list of alternative titles
-		alt_names = mal.Anime.search(at, show, ["alternative_titles"])['data'][0]['node']['alternative_titles']['synonyms']
+		day, time, alt_names = getDayTimeAlt(at, show)
 
 		config['watchlist'][show].append("False")
 		config['watchlist'][show].append([day, time])
@@ -284,7 +316,7 @@ def setQuality(Q):
 def setMAL(username, password):
 	config = readConfig()
 	config['main']['username'] = username
-	config['main']['password'] = password
+	config['main']['password'] = base64.b64encode(password.encode("utf-8")).decode("utf-8")
 	with open('data/config.json', 'w') as f:
 		json.dump(config, f, indent=4)
 

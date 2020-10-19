@@ -64,13 +64,6 @@ def readConfig():
 		config = json.load(f)
 	return config
 
-#Read schedule
-def readSchedule():
-	with open("../../data/data.json", "r")	as f:
-		data = json.load(f)
-		schedule = data['timetable']
-	return schedule
-
 #Get PDT
 def getPDT():
 	pst_timezone = pytz.timezone("US/Pacific")
@@ -104,7 +97,7 @@ def downloadEp(epno, aname, response):
 
 #Displays ETA message
 def getETAMessage(response):
-	schedule = readSchedule()
+	config = readConfig()
 
 	url = response.request.url
 	name = url[url.find("+") + 1:url.find(quality) - 1].replace("+", " ")
@@ -114,9 +107,9 @@ def getETAMessage(response):
 
 	show_time = ""
 	show_min = 0
-	if name in schedule.keys():
-		show_time = schedule[name]
-		show_min = int(show_time[0:2]) * 60 + int(show_time[3:5])
+	if name in config.keys():
+		show_time = config[name][2][1]
+		show_min = (int(show_time / 100) * 60 + show_time % 100) + 75 #Airing time + 75 mins
 	diff = 0
 	if show_min > curr_min:
 		diff = show_min - curr_min

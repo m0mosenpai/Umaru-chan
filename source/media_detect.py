@@ -38,7 +38,7 @@ def credentialCheck():
 	with open("data/config.json", "r") as f:
 		config = json.load(f)
 	user = config['main']['username']
-	passwd = config['main']['password']
+	passwd = base64.b64decode(bytes(config['main']['password'], "utf-8").decode("utf-8")).decode("utf-8")
 
 	if user == "" or passwd == "":
 		print("\033[91mUsername/Password not set! Run with -m/--mal-id to set one up!\033[0m")
