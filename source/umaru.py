@@ -110,19 +110,45 @@ dayMapping = {
 	"sunday": 6
 }
 
+#Correct watchlist keys
+def fixWatchlist():
+	config = readConfig()
+
+	at = mal.User.login(config['main']['username'], config['main']['password'])['access_token']
+
+	#Add alternative titles key
+	# 0 - Last downloaded episode number
+	# 1 - timestamp/status
+	# 2 - airing day/time
+	# 3 - alternative titles
+
+	for show in config['watchlist']:
+		if len(config['watchlist'][show]) == 3:
+			#Get list of alternative titles
+			alt_names = mal.Anime.search(at, show, ["alternative_titles"])['data'][0]['node']['alternative_titles']['synonyms']
+			config['watchlist'][show].append(alt_names)
+
+	with open('data/config.json', 'w') as f:
+		json.dump(config, f, indent=4)
+
+	print("\033[92mWatchlist fixed! Use -l/--list to see your watchlist.\033[0m")
+
 #Add shows to watchlist
 def addShows(showlist):
 	config = readConfig()
 
-	#TODO: HANDLE FRESH LOGIN
 	at = mal.User.login(config['main']['username'], config['main']['password'])['access_token']
 
 	for show in showlist:
-		#Get broadcast time of show from MAL
-		if show.find(":") == -1:
-			res = mal.Anime.search(at, show, ["broadcast"])
+		#Takes show name from the argument before the ":" and the latest ep number after the ":"
+		if show.find(":") != -1:
+			config['watchlist'][show[:show.index(":")]] = [show[(show.index(":")+1):]]
+			show = show[:show.index(":")]
 		else:
-			res = mal.Anime.search(at, show[:show.index(":")], ["broadcast"])
+			config['watchlist'][show] = ["0"]
+
+		#Get broadcast time of show from MAL
+		res = mal.Anime.search(at, show, ["broadcast"])
 
 		day = dayMapping[res['data'][0]['node']['broadcast']['day_of_the_week']]
 		time = res['data'][0]['node']['broadcast']['start_time']
@@ -133,15 +159,12 @@ def addShows(showlist):
 
 		#TODO: Converting time from JST to IST
 
-		#Takes show name from the argument before the ":" and the latest ep number after the ":"
-		if show.find(":") == -1:
-			config['watchlist'][show] = ["0"]
-			config['watchlist'][show].append("False")
-			config['watchlist'][show].append([day, time])
-		else:
-			config['watchlist'][show[:show.index(":")]] = [show[(show.index(":")+1):]]
-			config['watchlist'][show[:show.index(":")]].append("False")
-			config['watchlist'][show[:show.index(":")]].append([day, time])
+		#Get list of alternative titles
+		alt_names = mal.Anime.search(at, show, ["alternative_titles"])['data'][0]['node']['alternative_titles']['synonyms']
+
+		config['watchlist'][show].append("False")
+		config['watchlist'][show].append([day, time])
+		config['watchlist'][show].append(alt_names)
 
 	with open('data/config.json', 'w') as f:
 		json.dump(config, f, indent=4)
@@ -299,6 +322,7 @@ parser.add_argument('-q', '--quality', nargs=1, help="Sets quality of downloads 
 parser.add_argument('-m', '--mal-id', nargs=2, help="Sets username and password of MyAnimeList account.", metavar=("USER", "PASS"))
 parser.add_argument('-d', '--download', nargs='+', help="Downloads a full show or specified range of episodes.")
 parser.add_argument('-s', '--status', help="Displays current client and server status.", action='store_true')
+parser.add_argument('-f', '--fix', help="Fixes any issues in watchlist.", action='store_true')
 args = parser.parse_args()
 # print(args)
 
@@ -328,6 +352,8 @@ try:
 		clearList()
 	elif args.status:
 		status()
+	elif args.fix:
+		fixWatchlist()
 	elif args.execute:
 		execute()
 	else:
