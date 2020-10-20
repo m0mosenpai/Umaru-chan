@@ -64,11 +64,11 @@ def readConfig():
 		config = json.load(f)
 	return config
 
-#Get PDT
-def getPDT():
-	pst_timezone = pytz.timezone("US/Pacific")
-	pdt = datetime.datetime.now(pst_timezone).time()
-	return pdt
+#Get IST
+def getIST():
+	ist_timezone = pytz.timezone("Asia/Calcutta")
+	ist = datetime.datetime.now(ist_timezone).time()
+	return ist
 
 #Download episode
 def downloadEp(epno, aname, response):
@@ -102,13 +102,13 @@ def getETAMessage(response):
 	url = response.request.url
 	name = url[url.find("+") + 1:url.find(quality) - 1].replace("+", " ")
 
-	curr_pdt = getPDT().strftime("%H:%M")
-	curr_min = int(curr_pdt[0:2]) * 60 + int(curr_pdt[3:5])
+	curr_ist = getIST().strftime("%H:%M")
+	curr_min = int(curr_ist[0:2]) * 60 + int(curr_ist[3:5])
 
-	show_time = ""
+	show_time = 0
 	show_min = 0
-	if name in config.keys():
-		show_time = config[name][2][1]
+	if name in config["watchlist"].keys():
+		show_time = config["watchlist"][name][2][1]
 		show_min = (int(show_time / 100) * 60 + show_time % 100) + 75 #Airing time + 75 mins
 	diff = 0
 	if show_min > curr_min:

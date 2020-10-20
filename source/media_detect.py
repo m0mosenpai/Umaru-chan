@@ -8,6 +8,7 @@ import json
 import time
 import fuzzyset
 import anime_parser as ap
+import base64
 
 colorama.init()
 
