@@ -11,6 +11,8 @@ import colorama
 import platform
 import malupdate as mal
 import base64
+import time
+import fuzzyset
 
 import server
 import watch
@@ -39,6 +41,44 @@ def readConfig():
 #Makes quueue for downloadShow
 def makeQueue(aname, start, end, release="horriblesubs"):
 	return [aname, start, end, release]
+
+#Check if username and password exist in config
+def credentialCheck():
+	with open("data/config.json", "r") as f:
+		config = json.load(f)
+	user = config['main']['username']
+	passwd = base64.b64decode(bytes(config['main']['password'], "utf-8").decode("utf-8")).decode("utf-8")
+
+	if user == "" or passwd == "":
+		print("\033[91mUsername/Password not set! Run with -m/--mal-id to set one up!\033[0m")
+		exit()
+	else:
+		return [user, passwd]
+
+def login():
+	# Get loginData from login json file
+	with open("data/loginData.json", "r") as f:
+		loginData = json.load(f)
+
+	# if loginData is empty or it's been "expires_in" seconds (expiration of the access_token), do a fresh login
+	if (not loginData) or ((time.time() - float(loginData['access_token'][1])) > float(loginData['expires_in'])):
+		# Get login credentials from config
+		info = credentialCheck()
+
+		# Get loginInfo by logging in and add current timestamp to file
+		loginInfo = mal.User.login(info[0], info[1])
+		loginInfo['access_token'] = [loginInfo['access_token'], str(time.time())]
+
+		with open("data/loginData.json", "w+") as f:
+			json.dump(loginInfo, f, indent=4)
+		AT = loginInfo['access_token'][0]
+
+	# else, get the existing access_token from the json file
+	else:
+		credentialCheck()
+		AT = loginData['access_token'][0]
+
+	return AT
 
 #Shows the status
 def status():
@@ -111,40 +151,55 @@ dayMapping = {
 	"sunday": 6
 }
 
-def getDayTimeAlt(at, show):
+def getDayTimeAlt(AT, show):
 	#Get broadcast time of show from MAL
-	res = mal.Anime.search(at, show, ["broadcast"])
+	mal_watchlist = mal.User.getAnimeList(AT, "watching", ['broadcast', 'alternative_titles'])[0]["data"]
 
-	day = dayMapping[res['data'][0]['node']['broadcast']['day_of_the_week']]
-	time = res['data'][0]['node']['broadcast']['start_time']
-	time = int(time.replace(":", ""))
-	#Converting day from JST to IST
-	if(time <= 330):
-		day = (day + 6) % 7
+	fset = fuzzyset.FuzzySet()
+	fset.add(show)
+	max_prob, max_prob_idx = 0, 0
 
-	#Converting time from JST to IST
-	hr = int(time / 100)
-	mi = time % 100
+	for idx, item in enumerate(mal_watchlist):
+		result = fset.get(item['node']['title'])
+		current_prob = result[0][0] if result != None else 0
+		if current_prob > max_prob:
+			max_prob = current_prob
+			max_prob_idx = idx
 
-	if mi < 30:
-		hr = (hr + 20) % 24
+	if max_prob >= 0.6:
+		day = dayMapping[mal_watchlist[max_prob_idx]['node']['broadcast']['day_of_the_week']]
+		time = int(mal_watchlist[max_prob_idx]['node']['broadcast']['start_time'].replace(":", ""))
+
+		#Converting day from JST to IST
+		if(time <= 330):
+			day = (day + 6) % 7
+
+		hr = int(time / 100)
+		mi = time % 100
+
+		if mi < 30:
+			hr = (hr + 20) % 24
+		else:
+			hr = (hr + 21) % 24
+
+		mi = (mi + 30) % 60
+		time = hr * 100 + mi
+
+		#Get list of alternative titles
+		alt_names = mal_watchlist[max_prob_idx]['node']['alternative_titles']['synonyms']
+		alt_names.append(mal_watchlist[max_prob_idx]['node']['title'])
+		return day, time, alt_names
+
 	else:
-		hr = (hr + 21) % 24
-
-	mi = (mi + 30) % 60
-
-	time = hr * 100 + mi
-
-	#Get list of alternative titles
-	alt_names = mal.Anime.search(at, show, ["alternative_titles"])['data'][0]['node']['alternative_titles']['synonyms']
-
-	return day, time, alt_names
+		print("\033[91m[-] Anime not found in watchlist! Ignoring.\033[0m")
+		return None, None, None
 
 #Correct watchlist keys
 def fixWatchlist():
 	config = readConfig()
 
-	at = mal.User.login(config['main']['username'], base64.b64decode(bytes(config['main']['password'], "utf-8").decode("utf-8")).decode("utf-8"))['access_token']
+	print("[*] Looking for issues in watchlist.")
+	at = login()
 
 	#Add alternative titles key
 	# 0 - Last downloaded episode number
@@ -155,6 +210,8 @@ def fixWatchlist():
 	for show in config['watchlist']:
 		#Get broadcast time of show from MAL
 		day, time, alt_names = getDayTimeAlt(at, show)
+		if day == None and time == None and alt_names == None:
+			continue
 
 		if len(config['watchlist'][show]) == 2:
 			#Append
@@ -175,13 +232,14 @@ def fixWatchlist():
 	with open('data/config.json', 'w') as f:
 		json.dump(config, f, indent=4)
 
-	print("\033[92mWatchlist fixed! Use -l/--list to see your watchlist.\033[0m")
+	print("\033[92m[+] Watchlist fixed! Use -l/--list to see your watchlist.\033[0m")
 
 #Add shows to watchlist
 def addShows(showlist):
 	config = readConfig()
 
-	at = mal.User.login(config['main']['username'], base64.b64decode(bytes(config['main']['password'], "utf-8").decode("utf-8")).decode("utf-8"))['access_token']
+	print("[*] Getting anime info from MyAnimeList.")
+	at = login()
 
 	for show in showlist:
 		#Takes show name from the argument before the ":" and the latest ep number after the ":"
@@ -193,6 +251,8 @@ def addShows(showlist):
 
 		#Get broadcast time of show from MAL
 		day, time, alt_names = getDayTimeAlt(at, show)
+		if day == None and time == None and alt_names == None:
+			continue
 
 		config['watchlist'][show].append("False")
 		config['watchlist'][show].append([day, time])
@@ -201,7 +261,7 @@ def addShows(showlist):
 	with open('data/config.json', 'w') as f:
 		json.dump(config, f, indent=4)
 
-	print("\033[92mShows added succesfully! Use -l/--list to see your watchlist.\033[0m")
+	print("\033[92m[+] Shows added succesfully! Use -l/--list to see your watchlist.\033[0m")
 
 #Deletes selected show from watchlist
 def removeShows(numlist):
@@ -209,11 +269,11 @@ def removeShows(numlist):
 	#Check if show index is out of bounds
 	for num in numlist:
 		if num > len(config['watchlist']):
-			print("\033[91mThere are only {} shows in your watchlist!\033[0m".format(len(config['watchlist'])))
+			print("\033[91m[-] There are only {} shows in your watchlist!\033[0m".format(len(config['watchlist'])))
 			return
 	#Check if watchlist is empty
 	if not config['watchlist']:
-		print("\033[91mYour Watchlist is empty! Add shows using -a/--add <name>!\033[0m")
+		print("\033[91m[-] Your Watchlist is empty! Add shows using -a/--add <name>!\033[0m")
 	#Sort and remove
 	else:
 		keylist = list(config['watchlist'].keys())
@@ -229,10 +289,10 @@ def removeShows(numlist):
 #Download specified show
 def downloadShow(showinfo):
 	if len(showinfo) < 3:
-		print("\033[91mRequires atleast 3 arguments! [name, start, end]\033[0m")
+		print("\033[91m[-] Requires atleast 3 arguments! [name, start, end]\033[0m")
 		return
 	elif len(showinfo) > 4:
-		print("\033[91mToo many arguments - 3 required [name, start, end], 1 optional [release]\033[0m")
+		print("\033[91m[-] Too many arguments - 3 required [name, start, end], 1 optional [release]\033[0m")
 		return
 	else:
 		aname = showinfo[0]
@@ -265,7 +325,7 @@ def clearConfig():
 	with open("data/config.json", "w") as f:
 		json.dump(def_config, f, indent=4)
 
-	print("\033[92mConfig has been reset.\033[91m")
+	print("\033[92m[*] Config has been reset.\033[91m")
 
 #Clears watchlist
 def clearList():
@@ -274,7 +334,7 @@ def clearList():
 	with open("data/config.json", "w") as f:
 		json.dump(def_list, f, indent=4)
 
-	print("\033[92mYour watchlist has been reset. Use -a/--add to add shows!\033[91m")
+	print("\033[92m[*] Your watchlist has been reset. Use -a/--add to add shows!\033[91m")
 
 #Sets watch/anime library path
 def setPATH(PATH):
@@ -283,7 +343,7 @@ def setPATH(PATH):
 	with open('data/config.json', 'w') as f:
 		json.dump(config, f, indent=4)
 
-	print("\033[92mDefault anime watching directory set!\033[0m")
+	print("\033[92m[+] Default anime watching directory set!\033[0m")
 
 #Sets path for downloading torrent files
 def setTorrentPATH(PATH):
@@ -301,7 +361,7 @@ def setTorrentPATH(PATH):
 	with open('data/config.json', 'w') as f:
 		json.dump(config, f, indent=4)
 
-	print("\033[92mDefault download directory for torrent files set!\033[0m")
+	print("\033[92m[+] Default download directory for torrent files set!\033[0m")
 
 #Sets quality for downloads
 def setQuality(Q):
@@ -310,7 +370,7 @@ def setQuality(Q):
 	with open('data/config.json', 'w') as f:
 		json.dump(config, f, indent=4)
 
-	print("\033[92mQuality of downloads set to\033[0m \033[95m{}\033[0m".format(Q))
+	print("\033[92m[+] Quality of downloads set to\033[0m \033[95m{}\033[0m".format(Q))
 
 #Sets login id and password for MAL account
 def setMAL(username, password):
@@ -320,8 +380,8 @@ def setMAL(username, password):
 	with open('data/config.json', 'w') as f:
 		json.dump(config, f, indent=4)
 
-	print("\033[92mMAL Login ID set! Check secret.py.\033[0m")
-	print("\033[92mAuto list-updation is on. Don't forget to add anime to your 'Watching' list on MAL!\033[0m")
+	print("\033[92m[*] MAL Login ID set! Check secret.py.\033[0m")
+	print("\033[92m[*] Auto list-updation is on. Don't forget to add anime to your 'Watching' list on MAL!\033[0m")
 
 # Runs server
 def execute():
