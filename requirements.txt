@@ -1,4 +1,4 @@
-Scrapy==2.0.1
+Scrapy==2.6.0
 fuzzyset==0.0.19
 requests==2.23.0
 filetype==1.0.6
