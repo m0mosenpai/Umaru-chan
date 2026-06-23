@@ -1,6 +1,6 @@
 Scrapy==2.0.1
 fuzzyset==0.0.19
-requests==2.23.0
+requests==2.31.0
 filetype==1.0.6
 colorama==0.4.3
 pytz==2019.3
